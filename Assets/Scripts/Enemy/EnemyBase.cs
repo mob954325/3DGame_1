@@ -11,20 +11,23 @@ public class EnemyBase : MonoBehaviour
     //3. 공격하기 -> 대기 -> 공격 순으로 작동 
 
     // components
+    GameObject root;
+
     Player player;
     Rigidbody rigid;
+    Animator anim;
 
     // enemy info
     public float speed = 5.0f;
     public float range = 5.0f;
 
-
+    readonly int Forward = Animator.StringToHash("Move");
 
     void Awake()
     {
         player = FindAnyObjectByType<Player>();
+        anim = GetComponentInChildren<Animator>();
         rigid = GetComponent<Rigidbody>();
-        Debug.Log($"감지된 플레이어 오브젝트 이름 : {player.gameObject.name}");
     }
 
     void FixedUpdate()
@@ -39,8 +42,12 @@ public class EnemyBase : MonoBehaviour
         if(moveDirection.magnitude > range)
         {
             rigid.MovePosition(rigid.position + Time.fixedDeltaTime * moveDirection * speed);
+            anim.SetBool(Forward, true);
+        }
+        else if(moveDirection.magnitude <= range)
+        {
+            anim.SetBool(Forward, false);
         }
 
-        Debug.Log($"플레이어더미 사이의 거리 : {moveDirection.magnitude}");
     }
 }
