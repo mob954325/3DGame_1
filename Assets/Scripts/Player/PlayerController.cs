@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// <summary>
+/// 플레이어 인풋 관련 행동을 다루는 클래스
+/// </summary>
 public class PlayerController : MonoBehaviour
 {
     // components

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -639,9 +639,10 @@ GameObject:
   - component: {fileID: 2388355392534329581}
   - component: {fileID: 2388355392533035213}
   - component: {fileID: 2388355392531905037}
+  - component: {fileID: 2388355392534329582}
   m_Layer: 0
   m_Name: MeleeWarriorSword
-  m_TagString: Untagged
+  m_TagString: EnemyAttack
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -661,6 +662,27 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1270312540}
   m_LocalEulerAnglesHint: {x: -180, y: 0, z: 0}
+--- !u!65 &2388355392534329582
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2388355392534095053}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.2911798, y: 0.9482271, z: 0.145093}
+  m_Center: {x: -0.00022397947, y: 0.6176451, z: 0.0000005406927}
 --- !u!1 &9179696470350839808
 GameObject:
   m_ObjectHideFlags: 0
@@ -2827,8 +2849,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3dbb987febdad8c43884b1a6553bd736, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 0.1
-  range: 5
+  speed: 1.6
+  range: 1.5
+  rotateSpeed: 5
+  attackDelay: 1.12
 --- !u!137 &9179696470364507358
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 0

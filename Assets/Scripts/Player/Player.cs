@@ -4,5 +4,11 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    // Player Stats Script
+    void OnTriggerEnter(Collider other)
+    {
+        if(other.gameObject.CompareTag("EnemyAttack"))
+        {
+            Debug.Log($"적의 공격을 받았습니다 !!!");
+        }
+    }
 }
