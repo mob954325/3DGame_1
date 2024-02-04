@@ -24,6 +24,7 @@ public class PlayerController : MonoBehaviour
     [Range(0f,1f)]
     public float rotationPower = 5.0f;
     public float jumpPower = 5.0f;
+    public float attackDelayTime = 3.0f;
 
     // player's Transform objects
     public Transform cameraFollowTransform;
@@ -40,10 +41,12 @@ public class PlayerController : MonoBehaviour
     // player animator
     readonly int inputVertical_String = Animator.StringToHash("Vertical"); // input.z
     readonly int inputHorizontal_String = Animator.StringToHash("Horizontal"); // input.x
-    readonly int jump_String = Animator.StringToHash("Jump"); // Jump
+    readonly int jump_String = Animator.StringToHash("Jump");
+    readonly int attack_String = Animator.StringToHash("Attack");
 
-    // player Parameter
+    // player flag
     bool isJump = false;
+    bool isAttack = false;
 
     void Awake()
     {
@@ -71,6 +74,8 @@ public class PlayerController : MonoBehaviour
         actions.Player.Jump.canceled += OnJumpInput;
         actions.Player.Look.performed += OnLookInput;
         actions.Player.Look.canceled += OnLookInput;
+        actions.Player.Attack.performed += OnAttackInput;
+        actions.Player.Attack.canceled += OnAttackInput;
     }
 
     private void OnLookInput(InputAction.CallbackContext context)
@@ -80,6 +85,8 @@ public class PlayerController : MonoBehaviour
 
     void OnDisable()
     {
+        actions.Player.Attack.canceled -= OnAttackInput;
+        actions.Player.Attack.performed -= OnAttackInput;
         actions.Player.Look.canceled -= OnLookInput;
         actions.Player.Look.performed -= OnLookInput;
         actions.Player.Jump.canceled -= OnJumpInput;
@@ -201,5 +208,25 @@ public class PlayerController : MonoBehaviour
         // check input value
         animator.SetFloat(inputVertical_String, inputVertical);
         animator.SetFloat(inputHorizontal_String, inputHorizontal);
+    }
+
+    private void OnAttackInput(InputAction.CallbackContext context)
+    {
+
+        if(context.performed)
+        {
+            if(!isAttack)
+            {
+                animator.SetTrigger(attack_String);
+                StartCoroutine(AttackDelay());
+            }
+        }
+    }
+
+    IEnumerator AttackDelay()
+    {
+        isAttack = true;
+        yield return new WaitForSeconds(attackDelayTime);
+        isAttack = false;
     }
 }

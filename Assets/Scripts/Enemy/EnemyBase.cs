@@ -10,16 +10,34 @@ public class EnemyBase : MonoBehaviour
     //3. 공격하기 -> 대기 -> 공격 순으로 작동 
 
     // components
-    Player player;
+    public Player player;
     Rigidbody rigid;
     Animator anim;
 
     // Values
     Vector3 direction = Vector3.zero;
     float lookAngle;
+    float attackAnimTime;
 
     // Flags
     bool isAttack = false;
+
+    /// <summary>
+    /// 공격 했는지 확인하는 파라미터
+    /// </summary>
+    bool IsAttack
+    {
+        get => isAttack;
+        set
+        {
+            isAttack = value;
+
+            if(!isAttack)
+            {
+                speed = curSpeed;
+            }
+        }
+    }
 
     // enemy info
     float curSpeed;
@@ -27,10 +45,10 @@ public class EnemyBase : MonoBehaviour
     public float range = 2.0f;
     public float rotateSpeed = 5.0f;
     public float attackDelay = 2.5f;
-
+    float StepBackTime = 0f;
 
     // Hashes
-    readonly int ForwardToHash = Animator.StringToHash("Move");
+    readonly int SpeedToHash = Animator.StringToHash("Speed");
     readonly int AttackToHash = Animator.StringToHash("Attack");
 
     void Awake()
@@ -45,9 +63,18 @@ public class EnemyBase : MonoBehaviour
     void FixedUpdate()
     {
         direction = player.transform.position - transform.position; // 플레이어 방향 백터
+        anim.SetFloat(SpeedToHash, speed);
+
         MoveToPlayer();
         RotateToPlayer();
-        checkAttacking();
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if(other.gameObject.CompareTag("PlayerAttack"))
+        {
+            Debug.Log("Attacked by Player !!");
+        }
     }
 
     /// <summary>
@@ -57,29 +84,15 @@ public class EnemyBase : MonoBehaviour
     {
         if(direction.magnitude > range)
         {
-            rigid.MovePosition(rigid.position + Time.fixedDeltaTime * direction * speed);
-            anim.SetBool(ForwardToHash, true);
+            rigid.MovePosition(rigid.position + Time.fixedDeltaTime * direction.normalized * speed);
         }
         else if(direction.magnitude <= range) // 플레이어 근처에 도달
         {
-            anim.SetBool(ForwardToHash, false);
-            if(!isAttack)
+            if(!IsAttack)
             {
                 StopAllCoroutines();
                 StartCoroutine(Attack());
             }
-        }
-    }
-
-    void checkAttacking()
-    {
-        if(isAttack)
-        {
-            speed = 0f;
-        }
-        else
-        {
-            speed = curSpeed;
         }
     }
 
@@ -108,10 +121,23 @@ public class EnemyBase : MonoBehaviour
     /// <returns></returns>
     IEnumerator Attack()
     {
+        // 공격 애니메이션 실행
         anim.SetTrigger(AttackToHash);
-        isAttack = true;
-        yield return new WaitForSeconds(attackDelay);
-        // 공격후 경직 내용 넣기
-        isAttack = false;
+        IsAttack = true;
+        attackAnimTime = anim.GetCurrentAnimatorStateInfo(0).length + 0.5f; // 공격 모션 애니메이션 재생시간
+        yield return new WaitForSeconds(attackAnimTime);
+
+        // 뒤로 물러나기
+        StepBackTime = Random.Range(1, attackDelay - attackAnimTime); // 뒤로 물러가는 랜덤 시간
+        speed = (speed * -1) / 2;
+        rigid.MovePosition(rigid.position + Time.fixedDeltaTime * direction * speed);
+        yield return new WaitForSeconds(StepBackTime);
+
+        // 정지
+        speed = 0f;
+        yield return new WaitForSeconds(attackDelay - attackAnimTime - StepBackTime);
+
+        // 공격 딜레이 끝
+        IsAttack = false;
     }
 }
