@@ -39,10 +39,11 @@ public class PlayerController : MonoBehaviour
     float inputHorizontal = 0f;
 
     // player animator
-    readonly int inputVertical_String = Animator.StringToHash("Vertical"); // input.z
-    readonly int inputHorizontal_String = Animator.StringToHash("Horizontal"); // input.x
-    readonly int jump_String = Animator.StringToHash("Jump");
-    readonly int attack_String = Animator.StringToHash("Attack");
+    readonly int inputVerticalToHash = Animator.StringToHash("Vertical"); // input.z
+    readonly int inputHorizontalToHash = Animator.StringToHash("Horizontal"); // input.x
+    readonly int jumpToHash = Animator.StringToHash("Jump");
+    readonly int attackToHash = Animator.StringToHash("Attack");
+    readonly int damagedToHash = Animator.StringToHash("Damaged");
 
     // player flag
     bool isJump = false;
@@ -55,6 +56,8 @@ public class PlayerController : MonoBehaviour
         animator = GetComponent<Animator>();
 
         playerModel = transform.GetChild(0);
+
+        gameObject.GetComponent<Player>().onDamaged += () => OnDamagedAnimation(); // 피격 델리게이트
     }
 
     void Start()
@@ -131,7 +134,7 @@ public class PlayerController : MonoBehaviour
     {
         if(!isJump)
         {
-            animator.SetTrigger(jump_String);
+            animator.SetTrigger(jumpToHash);
             rigid.AddForce(Vector3.up * jumpPower, ForceMode.Impulse);
             isJump = true;
         }
@@ -206,8 +209,8 @@ public class PlayerController : MonoBehaviour
     void PlayAnimMove()
     {
         // check input value
-        animator.SetFloat(inputVertical_String, inputVertical);
-        animator.SetFloat(inputHorizontal_String, inputHorizontal);
+        animator.SetFloat(inputVerticalToHash, inputVertical);
+        animator.SetFloat(inputHorizontalToHash, inputHorizontal);
     }
 
     private void OnAttackInput(InputAction.CallbackContext context)
@@ -217,7 +220,7 @@ public class PlayerController : MonoBehaviour
         {
             if(!isAttack)
             {
-                animator.SetTrigger(attack_String);
+                animator.SetTrigger(attackToHash);
                 StartCoroutine(AttackDelay());
             }
         }
@@ -228,5 +231,10 @@ public class PlayerController : MonoBehaviour
         isAttack = true;
         yield return new WaitForSeconds(attackDelayTime);
         isAttack = false;
+    }
+
+    void OnDamagedAnimation()
+    {
+        animator.SetTrigger(damagedToHash);
     }
 }

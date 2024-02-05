@@ -1,18 +1,17 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyBase : MonoBehaviour
 {
-    //완료
-    //1. player tag를 가진 오브젝트 찾기 
-    //2. 해당 오브젝트에게 다가가기 : 무기 사정거리 내까지 
-    //3. 공격하기 -> 대기 -> 공격 순으로 작동 
+    // Delegate
+    Action changeAttackState; // 플레이어한테 공격을 하는지 확인하는 델리게이트
 
     // components
     public Player player;
     Rigidbody rigid;
-    Animator anim;
+    Animator animator;
 
     // Values
     Vector3 direction = Vector3.zero;
@@ -42,28 +41,52 @@ public class EnemyBase : MonoBehaviour
     // enemy info
     float curSpeed;
     public float speed = 3.0f;
-    public float range = 2.0f;
+    public float attackRange = 2.0f;
     public float rotateSpeed = 5.0f;
     public float attackDelay = 2.5f;
     float StepBackTime = 0f;
 
+    int hp;
+    public int maxHp = 10;
+    public int HP
+    {
+        get => hp;
+        set
+        {
+            hp = value;
+            Debug.Log($"적의 체력이 [{hp}]만큼 남았습니다");
+
+            if (hp <= 0)
+            {
+                hp = 0;
+                Die();
+            }
+        }
+    }
+
     // Hashes
     readonly int SpeedToHash = Animator.StringToHash("Speed");
     readonly int AttackToHash = Animator.StringToHash("Attack");
+    readonly int DamagedToHash = Animator.StringToHash("Damaged");
 
     void Awake()
     {
         player = FindAnyObjectByType<Player>();
-        anim = GetComponentInChildren<Animator>();
+        animator = GetComponentInChildren<Animator>();
         rigid = GetComponent<Rigidbody>();
 
+        // setting values
         curSpeed = speed; // speed 값 저장
+        hp = maxHp;
+
+        // add function to delegate
+        changeAttackState += () => player.ChangeAttackFlag();
     }
 
     void FixedUpdate()
     {
         direction = player.transform.position - transform.position; // 플레이어 방향 백터
-        anim.SetFloat(SpeedToHash, speed);
+        animator.SetFloat(SpeedToHash, speed);
 
         MoveToPlayer();
         RotateToPlayer();
@@ -74,6 +97,8 @@ public class EnemyBase : MonoBehaviour
         if(other.gameObject.CompareTag("PlayerAttack"))
         {
             Debug.Log("Attacked by Player !!");
+            animator.SetTrigger(DamagedToHash);
+            HP--;
         }
     }
 
@@ -82,11 +107,11 @@ public class EnemyBase : MonoBehaviour
     /// </summary>
     void MoveToPlayer()
     {
-        if(direction.magnitude > range)
+        if(direction.magnitude > attackRange)
         {
             rigid.MovePosition(rigid.position + Time.fixedDeltaTime * direction.normalized * speed);
         }
-        else if(direction.magnitude <= range) // 플레이어 근처에 도달
+        else if(direction.magnitude <= attackRange) // 플레이어 근처에 도달
         {
             if(!IsAttack)
             {
@@ -116,19 +141,21 @@ public class EnemyBase : MonoBehaviour
     }
 
     /// <summary>
-    /// 플레이어를 공격할 코루틴 (AttackDelay시간마다 계속 함수를 불러옴)
+    /// 플레이어를 공격하는 코루틴 (AttackDelay시간마다 계속 함수를 불러옴)
     /// </summary>
     /// <returns></returns>
     IEnumerator Attack()
     {
         // 공격 애니메이션 실행
-        anim.SetTrigger(AttackToHash);
+        animator.SetTrigger(AttackToHash);
         IsAttack = true;
-        attackAnimTime = anim.GetCurrentAnimatorStateInfo(0).length + 0.5f; // 공격 모션 애니메이션 재생시간
+        attackAnimTime = animator.GetCurrentAnimatorStateInfo(0).length + 0.5f; // 공격 모션 애니메이션 재생시간
+        changeAttackState?.Invoke();
         yield return new WaitForSeconds(attackAnimTime);
+        changeAttackState?.Invoke();
 
         // 뒤로 물러나기
-        StepBackTime = Random.Range(1, attackDelay - attackAnimTime); // 뒤로 물러가는 랜덤 시간
+        StepBackTime = UnityEngine.Random.Range(1, attackDelay - attackAnimTime); // 뒤로 물러가는 랜덤 시간
         speed = (speed * -1) / 2;
         rigid.MovePosition(rigid.position + Time.fixedDeltaTime * direction * speed);
         yield return new WaitForSeconds(StepBackTime);
@@ -139,5 +166,10 @@ public class EnemyBase : MonoBehaviour
 
         // 공격 딜레이 끝
         IsAttack = false;
+    }
+
+    void Die()
+    {
+        Debug.Log("적이 사망했습니다.");
     }
 }
