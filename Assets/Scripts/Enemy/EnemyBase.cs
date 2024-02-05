@@ -6,10 +6,10 @@ using UnityEngine;
 public class EnemyBase : MonoBehaviour
 {
     // Delegate
-    Action changeAttackState; // 플레이어한테 공격을 하는지 확인하는 델리게이트
+    Action OnEnemyAttackToPlayer; // 플레이어한테 공격을 하는지 확인하는 델리게이트
 
-    // components
-    public Player player;
+    // Components
+    Player player;
     Rigidbody rigid;
     Animator animator;
 
@@ -18,27 +18,7 @@ public class EnemyBase : MonoBehaviour
     float lookAngle;
     float attackAnimTime;
 
-    // Flags
-    bool isAttack = false;
-
-    /// <summary>
-    /// 공격 했는지 확인하는 파라미터
-    /// </summary>
-    bool IsAttack
-    {
-        get => isAttack;
-        set
-        {
-            isAttack = value;
-
-            if(!isAttack)
-            {
-                speed = curSpeed;
-            }
-        }
-    }
-
-    // enemy info
+    // Enemy stats
     float curSpeed;
     public float speed = 3.0f;
     public float attackRange = 2.0f;
@@ -64,10 +44,33 @@ public class EnemyBase : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 공격 했는지 확인하는 파라미터
+    /// </summary>
+    bool IsAttack
+    {
+        get => isAttack;
+        set
+        {
+            isAttack = value;
+
+            if(!isAttack)
+            {
+                speed = curSpeed;
+            }
+        }
+    }
+
     // Hashes
     readonly int SpeedToHash = Animator.StringToHash("Speed");
     readonly int AttackToHash = Animator.StringToHash("Attack");
     readonly int DamagedToHash = Animator.StringToHash("Damaged");
+
+
+    // Flags
+    bool isAttack = false;
+    bool isPlayerAttack = false;
+    bool isDamaged = false;
 
     void Awake()
     {
@@ -80,7 +83,7 @@ public class EnemyBase : MonoBehaviour
         hp = maxHp;
 
         // add function to delegate
-        changeAttackState += () => player.ChangeAttackFlag();
+        OnEnemyAttackToPlayer += () => player.ChangeAttackFlag();
     }
 
     void FixedUpdate()
@@ -94,11 +97,11 @@ public class EnemyBase : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.CompareTag("PlayerAttack"))
+        if(other.gameObject.CompareTag("PlayerAttack") && !isDamaged && isPlayerAttack)
         {
-            Debug.Log("Attacked by Player !!");
             animator.SetTrigger(DamagedToHash);
             HP--;
+            StartCoroutine(HitDelay());
         }
     }
 
@@ -150,9 +153,9 @@ public class EnemyBase : MonoBehaviour
         animator.SetTrigger(AttackToHash);
         IsAttack = true;
         attackAnimTime = animator.GetCurrentAnimatorStateInfo(0).length + 0.5f; // 공격 모션 애니메이션 재생시간
-        changeAttackState?.Invoke();
+        OnEnemyAttackToPlayer?.Invoke();
         yield return new WaitForSeconds(attackAnimTime);
-        changeAttackState?.Invoke();
+        OnEnemyAttackToPlayer?.Invoke();
 
         // 뒤로 물러나기
         StepBackTime = UnityEngine.Random.Range(1, attackDelay - attackAnimTime); // 뒤로 물러가는 랜덤 시간
@@ -166,6 +169,20 @@ public class EnemyBase : MonoBehaviour
 
         // 공격 딜레이 끝
         IsAttack = false;
+    }
+    /// <summary>
+    /// 플레이어가 적한테 공격을 할 수 있는지 없는지 상태 전환하는 함수(true : 공격 가능 , false : 공격 불가)
+    /// </summary>
+    public void ChangeAttackFlag()
+    {
+        isPlayerAttack = !isPlayerAttack;
+    }
+
+    IEnumerator HitDelay()
+    {
+        isDamaged = true;
+        yield return new WaitForSeconds(2f);
+        isDamaged = false;
     }
 
     void Die()

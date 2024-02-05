@@ -27,7 +27,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    // flags
+    // Flags
     bool isDamaged = false;
     bool isEnemyAttack = false; // 상대방이 공격하는지 확인하는 boolean
 
@@ -38,7 +38,7 @@ public class Player : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.CompareTag("EnemyAttack") && !isDamaged && !isEnemyAttack)
+        if(other.gameObject.CompareTag("EnemyAttack") && !isDamaged && isEnemyAttack)
         {
             onDamaged?.Invoke(); // 공격 델리게이트 함수 실행
             HP--;

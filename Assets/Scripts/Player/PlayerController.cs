@@ -9,10 +9,14 @@ using UnityEngine.InputSystem;
 /// </summary>
 public class PlayerController : MonoBehaviour
 {
+    // Action
+    Action OnPlayerAttackToEnemy; // 적한테 공격을 하는지 확인하는 델리게이트
+
     // components
     PlayerInputActions actions;
     Animator animator;
     Rigidbody rigid;
+    EnemyBase enemy;
 
     // player input values
     public Vector3 playerInput;
@@ -54,10 +58,12 @@ public class PlayerController : MonoBehaviour
         actions = new PlayerInputActions();
         rigid = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
+        enemy = FindAnyObjectByType<EnemyBase>();
 
         playerModel = transform.GetChild(0);
 
         gameObject.GetComponent<Player>().onDamaged += () => OnDamagedAnimation(); // 피격 델리게이트
+        OnPlayerAttackToEnemy += () => enemy.ChangeAttackFlag();
     }
 
     void Start()
@@ -229,8 +235,10 @@ public class PlayerController : MonoBehaviour
     IEnumerator AttackDelay()
     {
         isAttack = true;
+        OnPlayerAttackToEnemy?.Invoke();
         yield return new WaitForSeconds(attackDelayTime);
         isAttack = false;
+        OnPlayerAttackToEnemy?.Invoke();
     }
 
     void OnDamagedAnimation()
