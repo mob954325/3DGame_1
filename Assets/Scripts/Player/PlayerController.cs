@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
+using UnityEngine.UIElements;
 
 /// <summary>
 /// 플레이어 인풋 관련 행동을 다루는 클래스
@@ -191,14 +193,22 @@ public class PlayerController : MonoBehaviour
         Vector3 rotDirection = Vector3.zero;
         rotDirection.x = inputHorizontal;
         rotDirection.z = inputVertical;
-        rotDirection.Normalize();
+        rotDirection.Normalize(); // 회전 방향 백터
 
+        // 입력키 기준 모델 회전값 + 카메라 회전값 = 실제 플레이어 모델이 회전할 y값
         if(rotDirection.magnitude > 0.01f)
         {
             float lookAngle = Mathf.Atan2(rotDirection.x, rotDirection.z) * Mathf.Rad2Deg; // 회전할 방향
+            float lerpLookAngle = Mathf.LerpAngle(playerModel.localRotation.eulerAngles.y, 
+                                                  lookAngle + cameraFollowTransform.rotation.eulerAngles.y, 
+                                                  rotSpeed * Time.fixedDeltaTime);
+
+            playerModel.localRotation = Quaternion.Euler(0, lerpLookAngle, 0); // rotate Player model
         }
-        float angle = Mathf.LerpAngle(playerModel.localRotation.eulerAngles.y, cameraFollowTransform.rotation.eulerAngles.y, rotSpeed * Time.fixedDeltaTime);
-        playerModel.localRotation = Quaternion.Euler(0, angle, 0); // rotate Player model
+
+        // 카메라 방향 기준 모델 회전
+        //float angle = Mathf.LerpAngle(playerModel.localRotation.eulerAngles.y, cameraFollowTransform.rotation.eulerAngles.y, rotSpeed * Time.fixedDeltaTime);
+        //playerModel.localRotation = Quaternion.Euler(0, angle, 0); // rotate Player model
     }
 
     void playerMove()
