@@ -3,8 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Rendering;
-using UnityEngine.UIElements;
 
 /// <summary>
 /// 플레이어 인풋 관련 행동을 다루는 클래스
@@ -12,13 +10,40 @@ using UnityEngine.UIElements;
 public class PlayerController : MonoBehaviour
 {
     // Action
-    Action OnPlayerAttackToEnemy; // 적한테 공격을 하는지 확인하는 델리게이트
+    /// <summary>
+    /// 적한테 공격을 하는지 확인하는 델리게이트
+    /// </summary>
+    Action OnPlayerAttackToEnemy;
 
     // components
     PlayerInputActions actions;
     Animator animator;
     Rigidbody rigid;
-    EnemyBase enemy;
+    EnemyBase enemyBase;
+
+    /// <summary>
+    /// EnemyBase를 가진 오브젝트가 있는지 확인하기위한 프로퍼티
+    /// </summary>
+    EnemyBase Enemy
+    {
+        get => enemyBase;
+        set
+        {
+            enemyBase = value;
+            if (enemyBase == null)
+            {
+                Debug.LogError("EnemyBase 스크립트를 가진 오브젝트가 존재하지 않습니다.");
+
+                // 존재하지 않으면 빈 오브젝트 스크립트 생성
+                GameObject emptyScriptObject = new GameObject("EmptyScript");
+                emptyScriptObject.transform.parent = transform;
+                emptyScriptObject.AddComponent<EnemyBase>();
+                enemyBase = emptyScriptObject.GetComponent<EnemyBase>();
+
+                emptyScriptObject.SetActive(false);
+            }
+        }
+    }
 
     // player input values
     public Vector3 playerInput;
@@ -50,22 +75,27 @@ public class PlayerController : MonoBehaviour
     readonly int jumpToHash = Animator.StringToHash("Jump");
     readonly int attackToHash = Animator.StringToHash("Attack");
     readonly int damagedToHash = Animator.StringToHash("Damaged");
+    readonly int defenceToHash = Animator.StringToHash("isDefence");
+    readonly int ActiveDefenceToHash = Animator.StringToHash("ActiveDefence");
 
     // player flag
     bool isJump = false;
     bool isAttack = false;
+    bool isDefence = false; // 플레이어가 방어를 하는지 확인하는 flag
+    bool canDefence = false; // 플레이어가 방어를 성공할 수 있는지 확인하는 flag
+    float checkEnemyAngle = 0f;
 
     void Awake()
     {
         actions = new PlayerInputActions();
         rigid = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
-        enemy = FindAnyObjectByType<EnemyBase>();
+        Enemy = FindAnyObjectByType<EnemyBase>();
 
         playerModel = transform.GetChild(0);
 
         gameObject.GetComponent<Player>().onDamaged += () => OnDamagedAnimation(); // 피격 델리게이트
-        OnPlayerAttackToEnemy += () => enemy.ChangeAttackFlag();
+        OnPlayerAttackToEnemy += () => Enemy.Enemy_ChangeAttackFlag();
     }
 
     void Start()
@@ -87,6 +117,8 @@ public class PlayerController : MonoBehaviour
         actions.Player.Look.canceled += OnLookInput;
         actions.Player.Attack.performed += OnAttackInput;
         actions.Player.Attack.canceled += OnAttackInput;
+        actions.Player.Defence.performed += OnDefenceInput;
+        actions.Player.Defence.canceled += OnDefenceInput;
     }
 
     private void OnLookInput(InputAction.CallbackContext context)
@@ -96,6 +128,8 @@ public class PlayerController : MonoBehaviour
 
     void OnDisable()
     {
+        actions.Player.Defence.canceled -= OnDefenceInput;
+        actions.Player.Defence.performed -= OnDefenceInput;
         actions.Player.Attack.canceled -= OnAttackInput;
         actions.Player.Attack.performed -= OnAttackInput;
         actions.Player.Look.canceled -= OnLookInput;
@@ -105,7 +139,6 @@ public class PlayerController : MonoBehaviour
         actions.Player.Move.canceled -= OnMoveInput;
         actions.Player.Move.performed -= OnMoveInput;
         actions.Player.Disable();
-    
     }
 
     void FixedUpdate()
@@ -190,6 +223,9 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     void PlayerRotate()
     {
+        if (isDefence)
+            return;
+
         Vector3 rotDirection = Vector3.zero;
         rotDirection.x = inputHorizontal;
         rotDirection.z = inputVertical;
@@ -213,6 +249,9 @@ public class PlayerController : MonoBehaviour
 
     void playerMove()
     {
+        if (isDefence)
+            return;
+
         // calculate movement direction
         moveDirection = cameraFollowTransform.forward * inputVertical + cameraFollowTransform.right * inputHorizontal; // Player Move Direction
         moveDirection.y = 0f;
@@ -231,7 +270,6 @@ public class PlayerController : MonoBehaviour
 
     private void OnAttackInput(InputAction.CallbackContext context)
     {
-
         if(context.performed)
         {
             if(!isAttack)
@@ -254,5 +292,55 @@ public class PlayerController : MonoBehaviour
     void OnDamagedAnimation()
     {
         animator.SetTrigger(damagedToHash);
+    }
+
+    // Defence
+    private void OnDefenceInput(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            // Set animator paramaters
+            isDefence = true; CheckisDefence();
+
+            animator.SetTrigger(ActiveDefenceToHash);
+            animator.SetBool(defenceToHash, isDefence);
+
+            // check Enemay Attack Angle
+            checkEnemyAngle = Vector3.SignedAngle(playerModel.transform.forward, Enemy.transform.forward, transform.up);
+            //Debug.Log(checkEnemyAngle);
+            if (checkEnemyAngle >= -180 && checkEnemyAngle <= -90 || checkEnemyAngle <= 180 && checkEnemyAngle >= 90) // 플레이어가 적을 바라보고 있으면 방어 가능
+                canDefence = true;
+            else
+                canDefence = false;
+
+            CheckCanDefence();
+        }
+        if (context.canceled)
+        {
+            StartCoroutine(DefenceDelay());
+        }
+    }
+
+    void CheckCanDefence()
+    {
+        BroadcastMessage("GetCanDefence", canDefence);
+    }
+
+    void CheckisDefence()
+    {
+        BroadcastMessage("GetIsDefence", isDefence);
+    }
+
+    /// <summary>
+    /// 방어 무적 판정 시간 코루틴(Defencing attack + 0.5f)
+    /// </summary>
+    /// <returns></returns>
+    IEnumerator DefenceDelay()
+    {
+        animator.SetBool(defenceToHash, false);
+        float DefenceAnimTime = animator.GetCurrentAnimatorStateInfo(0).length + 0.5f; // 방어 모션 애니메이션 재생시간
+        yield return new WaitForSeconds(DefenceAnimTime);
+        isDefence = false; CheckisDefence();
+        CheckCanDefence();
     }
 }

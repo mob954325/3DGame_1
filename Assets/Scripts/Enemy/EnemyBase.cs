@@ -6,10 +6,40 @@ using UnityEngine;
 public class EnemyBase : MonoBehaviour
 {
     // Delegate
-    Action OnEnemyAttackToPlayer; // 플레이어한테 공격을 하는지 확인하는 델리게이트
+    /// <summary>
+    /// 플레이어한테 공격을 하는지 확인하는 델리게이트
+    /// </summary>
+    Action OnEnemyAttackToPlayer;
+    Action CheckTime;
 
     // Components
     Player player;
+
+    /// <summary>
+    /// player를 가진 오브젝트가 있는지 확인하기 위한 프로퍼티
+    /// </summary>
+    Player Player
+    {
+        get => player;
+        set
+        {
+            player = value;
+            if (player == null)
+            {
+                Debug.LogError("Player 스크립트를 가진 오브젝트가 존재하지 않습니다.");
+    
+                // 존재하지 않으면 빈 오브젝트 스크립트 생성
+                GameObject emptyScriptObject = new GameObject("EmptyScript");
+                emptyScriptObject.transform.parent = transform;
+                emptyScriptObject.AddComponent<Player>();
+                player = emptyScriptObject.GetComponent<Player>();
+    
+                emptyScriptObject.SetActive(false);
+            }
+        }
+    }
+
+
     Rigidbody rigid;
     Animator animator;
 
@@ -44,6 +74,24 @@ public class EnemyBase : MonoBehaviour
         }
     }
 
+    int toughness = 0; // 강인성 (0이되면 기절)
+    public int Toughness
+    {
+        get => toughness;
+        set
+        {
+            toughness = value;
+            Debug.Log($"남은 강인성 : [{toughness}]");
+
+            if(toughness <= 0)
+            {
+                toughness = 0;
+                // 기절함수
+            }
+        }
+    }
+    int maxToughness = 100;
+
     /// <summary>
     /// 공격 했는지 확인하는 파라미터
     /// </summary>
@@ -71,10 +119,11 @@ public class EnemyBase : MonoBehaviour
     bool isAttack = false;
     bool isPlayerAttack = false;
     bool isDamaged = false;
+    float playerDefenceTime = 0f;
 
     void Awake()
     {
-        player = FindAnyObjectByType<Player>();
+        Player = FindAnyObjectByType<Player>();
         animator = GetComponentInChildren<Animator>();
         rigid = GetComponent<Rigidbody>();
 
@@ -83,12 +132,13 @@ public class EnemyBase : MonoBehaviour
         hp = maxHp;
 
         // add function to delegate
-        OnEnemyAttackToPlayer += () => player.ChangeAttackFlag();
+        OnEnemyAttackToPlayer += () => Player.Player_ChangeAttackFlag();
+        CheckTime += () => player.GetDefenceTime();
     }
 
     void FixedUpdate()
     {
-        direction = player.transform.position - transform.position; // 플레이어 방향 백터
+        direction = Player.transform.position - transform.position; // 플레이어 방향 백터
         animator.SetFloat(SpeedToHash, speed);
 
         MoveToPlayer();
@@ -152,9 +202,12 @@ public class EnemyBase : MonoBehaviour
         // 공격 애니메이션 실행
         animator.SetTrigger(AttackToHash);
         IsAttack = true;
-        attackAnimTime = animator.GetCurrentAnimatorStateInfo(0).length + 0.5f; // 공격 모션 애니메이션 재생시간
+
         OnEnemyAttackToPlayer?.Invoke();
+
+        attackAnimTime = animator.GetCurrentAnimatorStateInfo(0).length; // 공격 모션 애니메이션 재생시간
         yield return new WaitForSeconds(attackAnimTime);
+
         OnEnemyAttackToPlayer?.Invoke();
 
         // 뒤로 물러나기
@@ -173,7 +226,7 @@ public class EnemyBase : MonoBehaviour
     /// <summary>
     /// 플레이어가 적한테 공격을 할 수 있는지 없는지 상태 전환하는 함수(true : 공격 가능 , false : 공격 불가)
     /// </summary>
-    public void ChangeAttackFlag()
+    public void Enemy_ChangeAttackFlag()
     {
         isPlayerAttack = !isPlayerAttack;
     }
@@ -188,5 +241,10 @@ public class EnemyBase : MonoBehaviour
     void Die()
     {
         Debug.Log("적이 사망했습니다.");
+    }
+
+    void parrying()
+    {
+        CheckTime?.Invoke();
     }
 }

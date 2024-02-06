@@ -27,18 +27,43 @@ public class Player : MonoBehaviour
         }
     }
 
+    // Player Parameters
+    public float parryingChanceTime = 0.5f; // 방어를 시작한 순간 패링 찬스를 얻는 시간 값
+    public float defenceTime = 0f;
+
     // Flags
     bool isDamaged = false;
     bool isEnemyAttack = false; // 상대방이 공격하는지 확인하는 boolean
+    /// <summary>
+    /// PlayerController.cs에서 isDefence를 매개변수를 BroadCast로 받는 함수
+    /// </summary>
+    /// <param name="boolean">PlayerController.cs의 isDefence flag 변수</param>
+    bool GetCanDefence(bool canDefence) => this.canDefence = canDefence;
+    bool canDefence = false;
+    bool GetIsDefence(bool isDefence) => this.isDefence = isDefence;
+    bool isDefence = false;
 
     void Awake()
     {
         hp = Maxhp;
     }
 
+    void Update()
+    {
+        if(isDefence)
+        {
+            defenceTime += Time.deltaTime;
+        }
+        else
+        {
+            defenceTime = 0f;
+        }
+    }
+
     void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.CompareTag("EnemyAttack") && !isDamaged && isEnemyAttack)
+        if(other.gameObject.CompareTag("EnemyAttack") && 
+            !isDamaged && isEnemyAttack && !canDefence)
         {
             onDamaged?.Invoke(); // 공격 델리게이트 함수 실행
             HP--;
@@ -64,8 +89,13 @@ public class Player : MonoBehaviour
     /// <summary>
     /// 적이 플레이어한테 공격을 할 수 있는지 없는지 상태 전환하는 함수(true : 공격 가능 , false : 공격 불가)
     /// </summary>
-    public void ChangeAttackFlag()
+    public void Player_ChangeAttackFlag()
     {
         isEnemyAttack = !isEnemyAttack;
+    }
+
+    public float GetDefenceTime()
+    {
+        return defenceTime;
     }
 }

@@ -1725,7 +1725,7 @@ GameObject:
   - component: {fileID: 4264592486321921038}
   m_Layer: 0
   m_Name: Test_Enemy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1781,9 +1781,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 5
-  range: 1.5
+  attackRange: 2
   rotateSpeed: 5
   attackDelay: 5
+  maxHp: 5
 --- !u!54 &5691509377340202010
 Rigidbody:
   m_ObjectHideFlags: 0
