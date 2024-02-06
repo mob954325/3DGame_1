@@ -10,7 +10,6 @@ public class EnemyBase : MonoBehaviour
     /// 플레이어한테 공격을 하는지 확인하는 델리게이트
     /// </summary>
     Action OnEnemyAttackToPlayer;
-    Action CheckTime;
 
     // Components
     Player player;
@@ -54,6 +53,7 @@ public class EnemyBase : MonoBehaviour
     public float attackRange = 2.0f;
     public float rotateSpeed = 5.0f;
     public float attackDelay = 2.5f;
+    public float parryingChanceTime = 0.5f; // 방어를 시작한 순간 패링 찬스를 얻는 시간 값
     float StepBackTime = 0f;
 
     int hp;
@@ -92,6 +92,14 @@ public class EnemyBase : MonoBehaviour
     }
     int maxToughness = 100;
 
+    // Hashes
+    readonly int SpeedToHash = Animator.StringToHash("Speed");
+    readonly int AttackToHash = Animator.StringToHash("Attack");
+    readonly int DamagedToHash = Animator.StringToHash("Damaged");
+
+
+    // Flags
+    bool isAttack = false;
     /// <summary>
     /// 공격 했는지 확인하는 파라미터
     /// </summary>
@@ -102,24 +110,15 @@ public class EnemyBase : MonoBehaviour
         {
             isAttack = value;
 
-            if(!isAttack)
+            if (!isAttack)
             {
                 speed = curSpeed;
             }
         }
     }
-
-    // Hashes
-    readonly int SpeedToHash = Animator.StringToHash("Speed");
-    readonly int AttackToHash = Animator.StringToHash("Attack");
-    readonly int DamagedToHash = Animator.StringToHash("Damaged");
-
-
-    // Flags
-    bool isAttack = false;
     bool isPlayerAttack = false;
     bool isDamaged = false;
-    float playerDefenceTime = 0f;
+    float playerDefenceTIme = 0f;
 
     void Awake()
     {
@@ -133,7 +132,6 @@ public class EnemyBase : MonoBehaviour
 
         // add function to delegate
         OnEnemyAttackToPlayer += () => Player.Player_ChangeAttackFlag();
-        CheckTime += () => player.GetDefenceTime();
     }
 
     void FixedUpdate()
@@ -199,6 +197,7 @@ public class EnemyBase : MonoBehaviour
     /// <returns></returns>
     IEnumerator Attack()
     {
+
         // 공격 애니메이션 실행
         animator.SetTrigger(AttackToHash);
         IsAttack = true;
@@ -243,8 +242,19 @@ public class EnemyBase : MonoBehaviour
         Debug.Log("적이 사망했습니다.");
     }
 
-    void parrying()
+    /// <summary>
+    /// 플레이어가 패링이 가능한지 확인하는 함수
+    /// </summary>
+    public void CheckParrying()
     {
-        CheckTime?.Invoke();
+        playerDefenceTIme = Player.GetComponent<Player>().GetDefenceTime();
+
+        if (IsAttack &&
+            playerDefenceTIme > 0 && playerDefenceTIme <= parryingChanceTime)
+        {
+            StopCoroutine(Attack());
+            animator.SetTrigger(DamagedToHash);
+            Debug.Log("플레이어가 공격을 받아 쳤습니다 !!!");
+        }
     }
 }

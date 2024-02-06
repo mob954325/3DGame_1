@@ -15,6 +15,11 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     Action OnPlayerAttackToEnemy;
 
+    /// <summary>
+    /// 플레이어가 패링을 성공 했을 때 실행하는 델리게이트
+    /// </summary>
+    Action OnPlayerParrying;
+
     // components
     PlayerInputActions actions;
     Animator animator;
@@ -96,6 +101,7 @@ public class PlayerController : MonoBehaviour
 
         gameObject.GetComponent<Player>().onDamaged += () => OnDamagedAnimation(); // 피격 델리게이트
         OnPlayerAttackToEnemy += () => Enemy.Enemy_ChangeAttackFlag();
+        OnPlayerParrying += () => Enemy.CheckParrying();
     }
 
     void Start()
@@ -300,7 +306,8 @@ public class PlayerController : MonoBehaviour
         if (context.performed)
         {
             // Set animator paramaters
-            isDefence = true; CheckisDefence();
+            isDefence = true; 
+            CheckisDefence();
 
             animator.SetTrigger(ActiveDefenceToHash);
             animator.SetBool(defenceToHash, isDefence);
@@ -309,9 +316,13 @@ public class PlayerController : MonoBehaviour
             checkEnemyAngle = Vector3.SignedAngle(playerModel.transform.forward, Enemy.transform.forward, transform.up);
             //Debug.Log(checkEnemyAngle);
             if (checkEnemyAngle >= -180 && checkEnemyAngle <= -90 || checkEnemyAngle <= 180 && checkEnemyAngle >= 90) // 플레이어가 적을 바라보고 있으면 방어 가능
+            {
                 canDefence = true;
+            }
             else
+            {
                 canDefence = false;
+            }
 
             CheckCanDefence();
         }
@@ -338,9 +349,15 @@ public class PlayerController : MonoBehaviour
     IEnumerator DefenceDelay()
     {
         animator.SetBool(defenceToHash, false);
+
+        OnPlayerParrying?.Invoke(); // 방패 밀치기 중에 패링을 할 수 있는지 확인
+
         float DefenceAnimTime = animator.GetCurrentAnimatorStateInfo(0).length + 0.5f; // 방어 모션 애니메이션 재생시간
         yield return new WaitForSeconds(DefenceAnimTime);
-        isDefence = false; CheckisDefence();
+        isDefence = false;
+        canDefence = false;
+
+        CheckisDefence();
         CheckCanDefence();
     }
 }

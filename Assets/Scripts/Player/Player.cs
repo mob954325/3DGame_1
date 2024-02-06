@@ -28,7 +28,6 @@ public class Player : MonoBehaviour
     }
 
     // Player Parameters
-    public float parryingChanceTime = 0.5f; // 방어를 시작한 순간 패링 찬스를 얻는 시간 값
     public float defenceTime = 0f;
 
     // Flags
@@ -62,11 +61,10 @@ public class Player : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.CompareTag("EnemyAttack") && 
-            !isDamaged && isEnemyAttack && !canDefence)
+        if(other.gameObject.CompareTag("EnemyAttack") &&
+          !isDamaged && isEnemyAttack && !canDefence)
         {
             onDamaged?.Invoke(); // 공격 델리게이트 함수 실행
-            HP--;
             StartCoroutine(HitDelay());
         }
     }
@@ -74,6 +72,9 @@ public class Player : MonoBehaviour
     IEnumerator HitDelay()
     {
         isDamaged = true;
+
+
+        HP--;
         yield return new WaitForSeconds(2f);
         isDamaged = false;
     }
