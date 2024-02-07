@@ -86,8 +86,8 @@ public class PlayerController : MonoBehaviour
     // player flag
     bool isJump = false;
     bool isAttack = false;
-    bool isDefence = false; // 플레이어가 방어를 하는지 확인하는 flag
-    bool canDefence = false; // 플레이어가 방어를 성공할 수 있는지 확인하는 flag
+    bool isDefence = false; // 플레이어가 방어 자세를 하려는지 확인하는 flag
+    bool canDefence = false; // 플레이어가 방어를 성공할 수 있는지 확인하는 flag (계속 방어를 하고 있는 중)
     float checkEnemyAngle = 0f;
 
     void Awake()
@@ -332,11 +332,17 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Player에게 canDefence flage boradcasting
+    /// </summary>
     void CheckCanDefence()
     {
         BroadcastMessage("GetCanDefence", canDefence);
     }
 
+    /// <summary>
+    /// Player에게 isDefence flage boradcasting
+    /// </summary>
     void CheckisDefence()
     {
         BroadcastMessage("GetIsDefence", isDefence);
@@ -352,11 +358,13 @@ public class PlayerController : MonoBehaviour
 
         OnPlayerParrying?.Invoke(); // 방패 밀치기 중에 패링을 할 수 있는지 확인
 
-        float DefenceAnimTime = animator.GetCurrentAnimatorStateInfo(0).length + 0.5f; // 방어 모션 애니메이션 재생시간
+        isDefence = false; // 방패 밀치기 애니메이션 시작
+        float DefenceAnimTime = animator.GetCurrentAnimatorStateInfo(0).length; // 방어 모션 애니메이션 재생시간
         yield return new WaitForSeconds(DefenceAnimTime);
-        isDefence = false;
-        canDefence = false;
 
+        canDefence = false; // 방어 못함
+
+        // Broadcast
         CheckisDefence();
         CheckCanDefence();
     }

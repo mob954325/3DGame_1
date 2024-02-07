@@ -252,9 +252,9 @@ public class EnemyBase : MonoBehaviour
         if (IsAttack &&
             playerDefenceTIme > 0 && playerDefenceTIme <= parryingChanceTime)
         {
+            // 공격 정지
             StopCoroutine(Attack());
-            animator.SetTrigger(DamagedToHash);
-            Debug.Log("플레이어가 공격을 받아 쳤습니다 !!!");
+            animator.SetTrigger(DamagedToHash); // 피해 받음
         }
     }
 }
