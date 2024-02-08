@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -88,6 +89,7 @@ public class PlayerController : MonoBehaviour
     bool isAttack = false;
     bool isDefence = false; // 플레이어가 방어 자세를 하려는지 확인하는 flag
     bool canDefence = false; // 플레이어가 방어를 성공할 수 있는지 확인하는 flag (계속 방어를 하고 있는 중)
+    bool isLockOn = false; // 플레이어가 락온을 활성화 했는지 확인하는 flag
     float checkEnemyAngle = 0f;
 
     void Awake()
@@ -125,15 +127,22 @@ public class PlayerController : MonoBehaviour
         actions.Player.Attack.canceled += OnAttackInput;
         actions.Player.Defence.performed += OnDefenceInput;
         actions.Player.Defence.canceled += OnDefenceInput;
+        actions.Player.LockOn.performed += OnLockCameraInput;
+        actions.Player.LockOn.canceled += OnLockCameraInput;
     }
 
-    private void OnLookInput(InputAction.CallbackContext context)
+    private void OnLockCameraInput(InputAction.CallbackContext context)
     {
-        mouseInput = context.ReadValue<Vector2>();
+        if(context.performed)
+        {
+            isLockOn = !isLockOn;
+        }
     }
 
     void OnDisable()
     {
+        actions.Player.LockOn.canceled -= OnLockCameraInput;
+        actions.Player.LockOn.performed -= OnLockCameraInput;
         actions.Player.Defence.canceled -= OnDefenceInput;
         actions.Player.Defence.performed -= OnDefenceInput;
         actions.Player.Attack.canceled -= OnAttackInput;
@@ -155,6 +164,10 @@ public class PlayerController : MonoBehaviour
         rotateCamera();
 
         PlayAnimMove();
+
+        // 카메라 락온
+        if(isLockOn)
+            cameraFollowTransform.LookAt(enemyBase.transform);
     }
 
     void OnCollisionEnter(Collision collision)
@@ -163,6 +176,11 @@ public class PlayerController : MonoBehaviour
         {
             isJump = false;
         }
+    }
+
+    private void OnLookInput(InputAction.CallbackContext context)
+    {
+        mouseInput = context.ReadValue<Vector2>();
     }
 
     private void OnMoveInput(InputAction.CallbackContext context)
@@ -189,6 +207,8 @@ public class PlayerController : MonoBehaviour
 
     void rotateCamera()
     {
+        if(isLockOn)
+            return;
 
         #region Vertical Rotation
 
@@ -238,19 +258,25 @@ public class PlayerController : MonoBehaviour
         rotDirection.Normalize(); // 회전 방향 백터
 
         // 입력키 기준 모델 회전값 + 카메라 회전값 = 실제 플레이어 모델이 회전할 y값
-        if(rotDirection.magnitude > 0.01f)
+        if(!isLockOn)
         {
-            float lookAngle = Mathf.Atan2(rotDirection.x, rotDirection.z) * Mathf.Rad2Deg; // 회전할 방향
-            float lerpLookAngle = Mathf.LerpAngle(playerModel.localRotation.eulerAngles.y, 
-                                                  lookAngle + cameraFollowTransform.rotation.eulerAngles.y, 
-                                                  rotSpeed * Time.fixedDeltaTime);
+            if(rotDirection.magnitude > 0.01f)
+            {
+                float lookAngle = Mathf.Atan2(rotDirection.x, rotDirection.z) * Mathf.Rad2Deg; // 회전할 방향
+                float lerpLookAngle = Mathf.LerpAngle(playerModel.localRotation.eulerAngles.y, 
+                                                      lookAngle + cameraFollowTransform.rotation.eulerAngles.y, 
+                                                      rotSpeed * Time.fixedDeltaTime);
 
-            playerModel.localRotation = Quaternion.Euler(0, lerpLookAngle, 0); // rotate Player model
+                playerModel.localRotation = Quaternion.Euler(0, lerpLookAngle, 0); // rotate Player model
+            }
+
         }
-
-        // 카메라 방향 기준 모델 회전
-        //float angle = Mathf.LerpAngle(playerModel.localRotation.eulerAngles.y, cameraFollowTransform.rotation.eulerAngles.y, rotSpeed * Time.fixedDeltaTime);
-        //playerModel.localRotation = Quaternion.Euler(0, angle, 0); // rotate Player model
+        else if(isLockOn)
+        {
+            // 카메라 방향 기준 모델 회전
+            float angle = Mathf.LerpAngle(playerModel.localRotation.eulerAngles.y, cameraFollowTransform.rotation.eulerAngles.y, rotSpeed * Time.fixedDeltaTime);
+            playerModel.localRotation = Quaternion.Euler(0, angle, 0); // rotate Player model
+        }
     }
 
     void playerMove()
