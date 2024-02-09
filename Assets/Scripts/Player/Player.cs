@@ -5,11 +5,13 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    // Component
+    Animator animator;
     // Delegate
     public Action onDamaged;
 
     // Player Stats
-    public int Maxhp = 5;
+    public int maxhp = 5;
     int hp;
     public int HP // 플레이어 체력 프로퍼티
     {
@@ -44,7 +46,9 @@ public class Player : MonoBehaviour
 
     void Awake()
     {
-        hp = Maxhp;
+        animator = GetComponent<Animator>();
+
+        hp = maxhp;
     }
 
     void Update()
@@ -84,6 +88,7 @@ public class Player : MonoBehaviour
     /// </summary>
     void Die()
     {
+        animator.SetTrigger("Die");
         Debug.Log($"플레이어가 사망했습니다.");
     }
 

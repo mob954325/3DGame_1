@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -15,7 +14,6 @@ public class PlayerController : MonoBehaviour
     /// 적한테 공격을 하는지 확인하는 델리게이트
     /// </summary>
     Action OnPlayerAttackToEnemy;
-
     /// <summary>
     /// 플레이어가 패링을 성공 했을 때 실행하는 델리게이트
     /// </summary>
@@ -83,6 +81,7 @@ public class PlayerController : MonoBehaviour
     readonly int damagedToHash = Animator.StringToHash("Damaged");
     readonly int defenceToHash = Animator.StringToHash("isDefence");
     readonly int ActiveDefenceToHash = Animator.StringToHash("ActiveDefence");
+    readonly int DieToHash = Animator.StringToHash("Die");
 
     // player flag
     bool isJump = false;

@@ -69,6 +69,7 @@ public class EnemyBase : MonoBehaviour
             if (hp <= 0)
             {
                 hp = 0;
+                isDead = true;
                 Die();
             }
         }
@@ -96,6 +97,7 @@ public class EnemyBase : MonoBehaviour
     readonly int SpeedToHash = Animator.StringToHash("Speed");
     readonly int AttackToHash = Animator.StringToHash("Attack");
     readonly int DamagedToHash = Animator.StringToHash("Damaged");
+    readonly int DieToHash = Animator.StringToHash("Die");
 
 
     // Flags
@@ -118,6 +120,7 @@ public class EnemyBase : MonoBehaviour
     }
     bool isPlayerAttack = false;
     bool isDamaged = false;
+    bool isDead = false;
     float playerDefenceTIme = 0f;
 
     void Awake()
@@ -139,8 +142,12 @@ public class EnemyBase : MonoBehaviour
         direction = Player.transform.position - transform.position; // 플레이어 방향 백터
         animator.SetFloat(SpeedToHash, speed);
 
-        MoveToPlayer();
-        RotateToPlayer();
+        // 적 행동 함수들
+        if(isDead)
+        {
+            MoveToPlayer();
+            RotateToPlayer();
+        }
     }
 
     void OnTriggerEnter(Collider other)
@@ -240,6 +247,7 @@ public class EnemyBase : MonoBehaviour
     void Die()
     {
         Debug.Log("적이 사망했습니다.");
+        animator.SetTrigger(DieToHash);
     }
 
     /// <summary>
