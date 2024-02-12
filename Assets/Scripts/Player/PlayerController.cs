@@ -57,9 +57,11 @@ public class PlayerController : MonoBehaviour
     public float moveSpeed = 5.0f;
     public float rotSpeed = 0.3f;
     [Range(0f,1f)]
-    public float rotationPower = 5.0f;
-    public float jumpPower = 5.0f;
-    public float attackDelayTime = 3.0f;
+    public float rotationPower = 5.0f; // 플레이어 회전력
+    public float jumpPower = 5.0f; // 점프력
+    public float attackDelayTime = 3.0f; // 공격 딜레이 시간
+    const float defenceAnimTime = 2.0f; // 방밀 애니메이션 딜레이 시간
+    public float defenceDelayTime = 3.0f; // 방어 딜레이 시간
 
     // player's Transform objects
     public Transform cameraFollowTransform;
@@ -81,13 +83,16 @@ public class PlayerController : MonoBehaviour
     readonly int damagedToHash = Animator.StringToHash("Damaged");
     readonly int defenceToHash = Animator.StringToHash("isDefence");
     readonly int ActiveDefenceToHash = Animator.StringToHash("ActiveDefence");
-    readonly int DieToHash = Animator.StringToHash("Die");
+    readonly int DieToHash = Animator.StringToHash("Die"); // ?
 
     // player flag
     bool isJump = false;
     bool isAttack = false;
+
     bool isDefence = false; // 플레이어가 방어 자세를 하려는지 확인하는 flag
     bool canDefence = false; // 플레이어가 방어를 성공할 수 있는지 확인하는 flag (계속 방어를 하고 있는 중)
+    bool defenceDelayActive = false; // 플레이어가 방어를 할 수 있는지 확인하는 flag 변수 ( true : 방어 못함, false : 방어 가능) 
+
     bool isLockOn = false; // 플레이어가 락온을 활성화 했는지 확인하는 flag
     float checkEnemyAngle = 0f;
 
@@ -328,10 +333,12 @@ public class PlayerController : MonoBehaviour
     // Defence
     private void OnDefenceInput(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (context.performed && !defenceDelayActive)
         {
+            defenceDelayActive = true; 
+
             // Set animator paramaters
-            isDefence = true; 
+            isDefence = true;
             CheckisDefence();
 
             animator.SetTrigger(ActiveDefenceToHash);
@@ -350,10 +357,11 @@ public class PlayerController : MonoBehaviour
             }
 
             CheckCanDefence();
+            StartCoroutine(DefenceDelay()); // 방어 딜레이 코루틴
         }
         if (context.canceled)
         {
-            StartCoroutine(DefenceDelay());
+            StartCoroutine(AfterDefence());
         }
     }
 
@@ -377,20 +385,25 @@ public class PlayerController : MonoBehaviour
     /// 방어 무적 판정 시간 코루틴(Defencing attack + 0.5f)
     /// </summary>
     /// <returns></returns>
-    IEnumerator DefenceDelay()
+    IEnumerator AfterDefence()
     {
         animator.SetBool(defenceToHash, false);
 
         OnPlayerParrying?.Invoke(); // 방패 밀치기 중에 패링을 할 수 있는지 확인
 
         isDefence = false; // 방패 밀치기 애니메이션 시작
-        float DefenceAnimTime = animator.GetCurrentAnimatorStateInfo(0).length; // 방어 모션 애니메이션 재생시간
-        yield return new WaitForSeconds(DefenceAnimTime);
+        yield return new WaitForSeconds(defenceAnimTime);
 
         canDefence = false; // 방어 못함
 
         // Broadcast
         CheckisDefence();
         CheckCanDefence();
+    }
+
+    IEnumerator DefenceDelay()
+    {
+        yield return new WaitForSecondsRealtime(defenceDelayTime);
+        defenceDelayActive = false;
     }
 }

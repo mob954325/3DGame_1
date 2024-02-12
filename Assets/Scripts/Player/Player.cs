@@ -30,7 +30,7 @@ public class Player : MonoBehaviour
     }
 
     // Player Parameters
-    public float defenceTime = 0f;
+    private float defenceTime = 0f;
 
     // Flags
     bool isDamaged = false;
@@ -40,9 +40,10 @@ public class Player : MonoBehaviour
     /// </summary>
     /// <param name="boolean">PlayerController.cs의 isDefence flag 변수</param>
     bool GetCanDefence(bool canDefence) => this.canDefence = canDefence;
-    bool canDefence = false;
+    bool canDefence = false; // 방어를 할 수 있는지 확인 (데미지 여부) 변수
     bool GetIsDefence(bool isDefence) => this.isDefence = isDefence;
-    bool isDefence = false;
+    bool isDefence = false; // 방어를 하고 있는지 확인 변수
+    bool istriggerHit = false; // 적 공격 범위(EnemyAttack tag)가 닿았는지 확인하는 변수
 
     void Awake()
     {
@@ -65,18 +66,28 @@ public class Player : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.CompareTag("EnemyAttack") &&
-          !isDamaged && isEnemyAttack && !canDefence)
+        if(other.gameObject.CompareTag("EnemyAttack"))
         {
-            onDamaged?.Invoke(); // 공격 델리게이트 함수 실행
-            StartCoroutine(HitDelay());
+            istriggerHit = true;
+            if(!isDamaged && isEnemyAttack && !canDefence && istriggerHit)
+            {
+                onDamaged?.Invoke(); // 공격 델리게이트 함수 실행
+                StartCoroutine(HitDelay());
+            }
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.CompareTag("EnemyAttack"))
+        {
+            istriggerHit = false;
         }
     }
 
     IEnumerator HitDelay()
     {
         isDamaged = true;
-
 
         HP--;
         yield return new WaitForSeconds(2f);

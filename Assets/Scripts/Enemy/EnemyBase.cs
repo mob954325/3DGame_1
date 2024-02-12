@@ -48,13 +48,15 @@ public class EnemyBase : MonoBehaviour
     float attackAnimTime;
 
     // Enemy stats
-    float curSpeed;
+    float baseSpeed;
+    [Header ("Enemy Stats")]
     public float speed = 3.0f;
-    public float attackRange = 2.0f;
     public float rotateSpeed = 5.0f;
+    [Space (10f)]
+    public float attackRange = 2.0f;
     public float attackDelay = 2.5f;
     public float parryingChanceTime = 0.5f; // 방어를 시작한 순간 패링 찬스를 얻는 시간 값
-    float StepBackTime = 0f;
+    [SerializeField] float StepBackTime = 0f;
 
     int hp;
     public int maxHp = 10;
@@ -69,7 +71,6 @@ public class EnemyBase : MonoBehaviour
             if (hp <= 0)
             {
                 hp = 0;
-                isDead = true;
                 Die();
             }
         }
@@ -87,21 +88,26 @@ public class EnemyBase : MonoBehaviour
             if(toughness <= 0)
             {
                 toughness = 0;
-                // 기절함수
+                speed = 0;
+
+                animator.SetBool(isFaintToHash, isFaint);
+                Invoke("AfterFaint", 5f);
             }
+
         }
     }
-    int maxToughness = 100;
+    public int maxToughness = 100;
 
     // Hashes
     readonly int SpeedToHash = Animator.StringToHash("Speed");
     readonly int AttackToHash = Animator.StringToHash("Attack");
     readonly int DamagedToHash = Animator.StringToHash("Damaged");
     readonly int DieToHash = Animator.StringToHash("Die");
-
+    readonly int isFaintToHash = Animator.StringToHash("isFaint");
 
     // Flags
-    bool isAttack = false;
+    [Header("Enemy Flag")]
+    [SerializeField] bool isAttack = false;
     /// <summary>
     /// 공격 했는지 확인하는 파라미터
     /// </summary>
@@ -114,14 +120,16 @@ public class EnemyBase : MonoBehaviour
 
             if (!isAttack)
             {
-                speed = curSpeed;
+                speed = baseSpeed;
             }
         }
     }
-    bool isPlayerAttack = false;
-    bool isDamaged = false;
-    bool isDead = false;
-    float playerDefenceTIme = 0f;
+    bool isPlayerAttack = false; // 플레이어 공격 여부
+    [SerializeField] bool isDamaged = false; // 피격 여부
+    [SerializeField] bool isDead => HP <= 0; // 사망 여부
+    [SerializeField] bool isFaint => Toughness <= 0; // 기절 여부 
+    float playerDefenceTIme = 0f; // player가 방어한 시간 저장 변수
+    bool alreadyParrying = false; // 이미 패링당했는지 확인하는 변수
 
     void Awake()
     {
@@ -130,8 +138,9 @@ public class EnemyBase : MonoBehaviour
         rigid = GetComponent<Rigidbody>();
 
         // setting values
-        curSpeed = speed; // speed 값 저장
-        hp = maxHp;
+        baseSpeed = speed; // speed 값 저장
+        HP = maxHp;
+        Toughness = maxToughness;
 
         // add function to delegate
         OnEnemyAttackToPlayer += () => Player.Player_ChangeAttackFlag();
@@ -143,7 +152,7 @@ public class EnemyBase : MonoBehaviour
         animator.SetFloat(SpeedToHash, speed);
 
         // 적 행동 함수들
-        if(isDead)
+        if(!isDead && !isFaint)
         {
             MoveToPlayer();
             RotateToPlayer();
@@ -154,9 +163,11 @@ public class EnemyBase : MonoBehaviour
     {
         if(other.gameObject.CompareTag("PlayerAttack") && !isDamaged && isPlayerAttack)
         {
-            animator.SetTrigger(DamagedToHash);
             HP--;
             StartCoroutine(HitDelay());
+
+            if (isFaint) return;
+            animator.SetTrigger(DamagedToHash);
         }
     }
 
@@ -165,14 +176,14 @@ public class EnemyBase : MonoBehaviour
     /// </summary>
     void MoveToPlayer()
     {
-        if(direction.magnitude > attackRange)
+        rigid.MovePosition(rigid.position + Time.fixedDeltaTime * direction.normalized * speed);
+
+        if(direction.magnitude <= attackRange) // 플레이어 근처에 도달
         {
-            rigid.MovePosition(rigid.position + Time.fixedDeltaTime * direction.normalized * speed);
-        }
-        else if(direction.magnitude <= attackRange) // 플레이어 근처에 도달
-        {
-            if(!IsAttack)
+            if (!IsAttack)
             {
+                alreadyParrying = false; // 패링 조건 활성화
+
                 StopAllCoroutines();
                 StartCoroutine(Attack());
             }
@@ -204,12 +215,12 @@ public class EnemyBase : MonoBehaviour
     /// <returns></returns>
     IEnumerator Attack()
     {
-
+        speed = 0f;
         // 공격 애니메이션 실행
         animator.SetTrigger(AttackToHash);
         IsAttack = true;
 
-        OnEnemyAttackToPlayer?.Invoke();
+        OnEnemyAttackToPlayer?.Invoke(); // Player.cs 적 공격 flag 변경
 
         attackAnimTime = animator.GetCurrentAnimatorStateInfo(0).length; // 공격 모션 애니메이션 재생시간
         yield return new WaitForSeconds(attackAnimTime);
@@ -218,8 +229,9 @@ public class EnemyBase : MonoBehaviour
 
         // 뒤로 물러나기
         StepBackTime = UnityEngine.Random.Range(1, attackDelay - attackAnimTime); // 뒤로 물러가는 랜덤 시간
-        speed = (speed * -1) / 2;
-        rigid.MovePosition(rigid.position + Time.fixedDeltaTime * direction * speed);
+        yield return new WaitForSeconds(1f);
+
+        speed = baseSpeed * -1 / 2f;
         yield return new WaitForSeconds(StepBackTime);
 
         // 정지
@@ -229,6 +241,7 @@ public class EnemyBase : MonoBehaviour
         // 공격 딜레이 끝
         IsAttack = false;
     }
+
     /// <summary>
     /// 플레이어가 적한테 공격을 할 수 있는지 없는지 상태 전환하는 함수(true : 공격 가능 , false : 공격 불가)
     /// </summary>
@@ -257,12 +270,26 @@ public class EnemyBase : MonoBehaviour
     {
         playerDefenceTIme = Player.GetComponent<Player>().GetDefenceTime();
 
-        if (IsAttack &&
-            playerDefenceTIme > 0 && playerDefenceTIme <= parryingChanceTime)
+        if (IsAttack && playerDefenceTIme > 0 
+            && playerDefenceTIme <= parryingChanceTime
+            && direction.magnitude <= attackRange
+            && !alreadyParrying)
         {
+            alreadyParrying = true;
             // 공격 정지
             StopCoroutine(Attack());
+            Toughness -= 20;
             animator.SetTrigger(DamagedToHash); // 피해 받음
         }
+    }
+
+    /// <summary>
+    /// 기절 후 수행할 함수
+    /// </summary>
+    void AfterFaint()
+    {
+        Toughness = maxToughness;
+        animator.SetBool(isFaintToHash, isFaint);
+        speed = baseSpeed;
     }
 }

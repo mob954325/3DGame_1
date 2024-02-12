@@ -23,4 +23,11 @@ public class Test_Hp : TestInput
             enemy.HP--;
         }
     }
+    protected override void OnTest3(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            enemy.Toughness -= 20;
+        }
+    }
 }
