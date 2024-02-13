@@ -23,8 +23,6 @@ public class GameManager : MonoBehaviour
     public GameObject playerHpBar;
     Image currentPlayerHP;
 
-
-
     void Awake()
     {
         enemy = FindAnyObjectByType<EnemyBase>();
@@ -46,11 +44,19 @@ public class GameManager : MonoBehaviour
     /// </summary>
     void BarUI()
     {
-        // Enemy
-        currentEnemyHP.fillAmount = enemy.HP / (float)enemy.maxHp;
-        currentPlayerToughness.fillAmount = enemy.Toughness / (float)enemy.maxToughness;   
+        if(player != null && enemy != null)
+        {
+            // Enemy
+            currentEnemyHP.fillAmount = enemy.HP / (float)enemy.maxHp;
+            currentPlayerToughness.fillAmount = enemy.Toughness / (float)enemy.maxToughness;   
 
-        // Player
-        currentPlayerHP.fillAmount = player.HP / (float)player.maxhp;
+            // Player
+            currentPlayerHP.fillAmount = player.HP / (float)player.maxhp;
+        }
+    }
+
+    void InteractionObject()
+    {
+
     }
 }

@@ -68,7 +68,7 @@ public class EnemyBase : MonoBehaviour
             hp = value;
             Debug.Log($"적의 체력이 [{hp}]만큼 남았습니다");
 
-            if (hp <= 0)
+            if (hp < 0)
             {
                 hp = 0;
                 Die();
@@ -161,6 +161,9 @@ public class EnemyBase : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
+        if (isDead)
+            return;
+
         if(other.gameObject.CompareTag("PlayerAttack") && !isDamaged && isPlayerAttack)
         {
             HP--;
@@ -259,7 +262,6 @@ public class EnemyBase : MonoBehaviour
 
     void Die()
     {
-        Debug.Log("적이 사망했습니다.");
         animator.SetTrigger(DieToHash);
     }
 

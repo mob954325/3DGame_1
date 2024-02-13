@@ -21,7 +21,7 @@ public class Player : MonoBehaviour
             hp = value;
             Debug.Log($"플레이어의 체력이 [{hp}]만큼 남았습니다");
 
-            if(hp <= 0)
+            if(hp < 0)
             {
                 hp = 0;
                 Die();
@@ -100,7 +100,6 @@ public class Player : MonoBehaviour
     void Die()
     {
         animator.SetTrigger("Die");
-        Debug.Log($"플레이어가 사망했습니다.");
     }
 
     /// <summary>

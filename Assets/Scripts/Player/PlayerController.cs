@@ -19,6 +19,8 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     Action OnPlayerParrying;
 
+    public Action OnInteractionAction; // 인터렉션 델리게이트
+
     // components
     PlayerInputActions actions;
     Animator animator;
@@ -96,6 +98,9 @@ public class PlayerController : MonoBehaviour
     bool isLockOn = false; // 플레이어가 락온을 활성화 했는지 확인하는 flag
     float checkEnemyAngle = 0f;
 
+    [SerializeField] bool canInteraction = false; // 플레이어가 상호작용이 가능한지 확인하는 flag
+
+
     void Awake()
     {
         actions = new PlayerInputActions();
@@ -133,18 +138,23 @@ public class PlayerController : MonoBehaviour
         actions.Player.Defence.canceled += OnDefenceInput;
         actions.Player.LockOn.performed += OnLockCameraInput;
         actions.Player.LockOn.canceled += OnLockCameraInput;
+        actions.Player.Interaction.performed += OnInteraction;
+        actions.Player.Interaction.canceled += OnInteraction;
     }
 
-    private void OnLockCameraInput(InputAction.CallbackContext context)
+    private void OnInteraction(InputAction.CallbackContext context)
     {
-        if(context.performed)
+        if(context.performed && canInteraction)
         {
-            isLockOn = !isLockOn;
+            Debug.Log($"interaction");
+            OnInteractionAction?.Invoke(); // 인터렉션 오브젝트 정보 전달
         }
     }
 
     void OnDisable()
     {
+        actions.Player.Interaction.canceled -= OnInteraction;
+        actions.Player.Interaction.performed -= OnInteraction;
         actions.Player.LockOn.canceled -= OnLockCameraInput;
         actions.Player.LockOn.performed -= OnLockCameraInput;
         actions.Player.Defence.canceled -= OnDefenceInput;
@@ -179,6 +189,24 @@ public class PlayerController : MonoBehaviour
         if(collision.gameObject.CompareTag("Ground"))
         {
             isJump = false;
+        }
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        // check interaction Object
+        if (other.CompareTag("Interaction"))
+        {
+            canInteraction = true;
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        // check interaction Object
+        if (other.CompareTag("Interaction"))
+        {
+            canInteraction = false;
         }
     }
 
@@ -405,5 +433,13 @@ public class PlayerController : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(defenceDelayTime);
         defenceDelayActive = false;
+    }
+
+    private void OnLockCameraInput(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            isLockOn = !isLockOn;
+        }
     }
 }
