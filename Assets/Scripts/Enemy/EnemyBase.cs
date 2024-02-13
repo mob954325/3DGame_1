@@ -25,7 +25,7 @@ public class EnemyBase : MonoBehaviour
             player = value;
             if (player == null)
             {
-                Debug.LogError("Player 스크립트를 가진 오브젝트가 존재하지 않습니다.");
+                Debug.Log("Player 스크립트를 가진 오브젝트가 존재하지 않습니다.");
     
                 // 존재하지 않으면 빈 오브젝트 스크립트 생성
                 GameObject emptyScriptObject = new GameObject("EmptyScript");

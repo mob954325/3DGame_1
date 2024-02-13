@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    static public GameManager instance;
+
     // Characters in Games
     public Player player;
     public EnemyBase enemy;
@@ -23,8 +25,13 @@ public class GameManager : MonoBehaviour
     public GameObject playerHpBar;
     Image currentPlayerHP;
 
+    [Header("Info Panel")]
+    public GameObject infoPanel;
+
     void Awake()
     {
+        instance = this;
+
         enemy = FindAnyObjectByType<EnemyBase>();
         player = FindAnyObjectByType<Player>();
 
