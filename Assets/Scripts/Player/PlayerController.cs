@@ -25,31 +25,7 @@ public class PlayerController : MonoBehaviour
     PlayerInputActions actions;
     Animator animator;
     Rigidbody rigid;
-    EnemyBase enemyBase;
-
-    /// <summary>
-    /// EnemyBase를 가진 오브젝트가 있는지 확인하기위한 프로퍼티
-    /// </summary>
-    EnemyBase Enemy
-    {
-        get => enemyBase;
-        set
-        {
-            enemyBase = value;
-            if (enemyBase == null)
-            {
-                Debug.LogError("EnemyBase 스크립트를 가진 오브젝트가 존재하지 않습니다.");
-
-                // 존재하지 않으면 빈 오브젝트 스크립트 생성
-                GameObject emptyScriptObject = new GameObject("EmptyScript");
-                emptyScriptObject.transform.parent = transform;
-                emptyScriptObject.AddComponent<EnemyBase>();
-                enemyBase = emptyScriptObject.GetComponent<EnemyBase>();
-
-                emptyScriptObject.SetActive(false);
-            }
-        }
-    }
+    public EnemyBase enemy;
 
     // player input values
     public Vector3 playerInput;
@@ -106,13 +82,13 @@ public class PlayerController : MonoBehaviour
         actions = new PlayerInputActions();
         rigid = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
-        Enemy = FindAnyObjectByType<EnemyBase>();
+        enemy = FindAnyObjectByType<EnemyBase>();
 
         playerModel = transform.GetChild(0);
 
         gameObject.GetComponent<Player>().onDamaged += () => OnDamagedAnimation(); // 피격 델리게이트
-        OnPlayerAttackToEnemy += () => Enemy.Enemy_ChangeAttackFlag();
-        OnPlayerParrying += () => Enemy.CheckParrying();
+        OnPlayerAttackToEnemy += () => enemy.Enemy_ChangeAttackFlag();
+        OnPlayerParrying += () => enemy.CheckParrying();
     }
 
     void Start()
@@ -146,7 +122,7 @@ public class PlayerController : MonoBehaviour
     {
         if(context.performed && canInteraction)
         {
-            GameManager.Instance.infoPanel.GetComponent<UI_Info>().ActiveUI();
+            GameUIManager.Instance.infoPanel.GetComponent<UI_Info>().ActiveUI();
             OnInteractionAction?.Invoke();
         }
     }
@@ -181,7 +157,7 @@ public class PlayerController : MonoBehaviour
 
         // 카메라 락온
         if(isLockOn)
-            cameraFollowTransform.LookAt(enemyBase.transform);
+            cameraFollowTransform.LookAt(enemy.transform);
     }
 
     void OnCollisionEnter(Collision collision)
@@ -197,7 +173,7 @@ public class PlayerController : MonoBehaviour
         // check interaction Object
         if (other.CompareTag("Interaction"))
         {
-            GameManager.Instance.infoPanel.GetComponent<UI_Info>().targetObj = other.gameObject;
+            GameUIManager.Instance.infoPanel.GetComponent<UI_Info>().targetObj = other.gameObject;
             canInteraction = true;
         }
     }
@@ -207,8 +183,8 @@ public class PlayerController : MonoBehaviour
         // check interaction Object
         if (other.CompareTag("Interaction"))
         {
-            canInteraction = false; 
-            GameManager.Instance.infoPanel.GetComponent<UI_Info>().gameObject.SetActive(false);
+            canInteraction = false;
+            GameUIManager.Instance.infoPanel.GetComponent<UI_Info>().gameObject.SetActive(false);
         }
     }
 
@@ -375,7 +351,7 @@ public class PlayerController : MonoBehaviour
             animator.SetBool(defenceToHash, isDefence);
 
             // check Enemay Attack Angle
-            checkEnemyAngle = Vector3.SignedAngle(playerModel.transform.forward, Enemy.transform.forward, transform.up);
+            checkEnemyAngle = Vector3.SignedAngle(playerModel.transform.forward, enemy.transform.forward, transform.up);
             //Debug.Log(checkEnemyAngle);
             if (checkEnemyAngle >= -180 && checkEnemyAngle <= -90 || checkEnemyAngle <= 180 && checkEnemyAngle >= 90) // 플레이어가 적을 바라보고 있으면 방어 가능
             {
