@@ -146,7 +146,7 @@ public class PlayerController : MonoBehaviour
     {
         if(context.performed && canInteraction)
         {
-            GameManager.instance.infoPanel.GetComponent<UI_Info>().ActiveUI();
+            GameManager.Instance.infoPanel.GetComponent<UI_Info>().ActiveUI();
             OnInteractionAction?.Invoke();
         }
     }
@@ -197,7 +197,7 @@ public class PlayerController : MonoBehaviour
         // check interaction Object
         if (other.CompareTag("Interaction"))
         {
-            GameManager.instance.infoPanel.GetComponent<UI_Info>().targetObj = other.gameObject;
+            GameManager.Instance.infoPanel.GetComponent<UI_Info>().targetObj = other.gameObject;
             canInteraction = true;
         }
     }
@@ -208,7 +208,7 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("Interaction"))
         {
             canInteraction = false; 
-            GameManager.instance.infoPanel.GetComponent<UI_Info>().gameObject.SetActive(false);
+            GameManager.Instance.infoPanel.GetComponent<UI_Info>().gameObject.SetActive(false);
         }
     }
 
