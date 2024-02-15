@@ -12,9 +12,16 @@ public class GameUIManager : Singleton<GameUIManager>
     PlayerBar playerBar;
     EnemyBar enemyBar;
 
+    [Header("Info UI")]
+    [HideInInspector]public UI_Info info;
+    [HideInInspector]public bool isPlayerInteraction = false;
+
+
     protected override void OnInitialize()
     {
         playerBar = FindAnyObjectByType<PlayerBar>();
         enemyBar = FindAnyObjectByType<EnemyBar>();
+
+        info = FindAnyObjectByType<UI_Info>();
     }
 }

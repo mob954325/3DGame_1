@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    // 24.02.15
+    public PlayerController controller;
 
     // Component
     Animator animator;
@@ -49,6 +49,7 @@ public class Player : MonoBehaviour
 
     void Awake()
     {
+        controller = GetComponent<PlayerController>();
         animator = GetComponent<Animator>();
 
         hp = maxhp;

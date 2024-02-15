@@ -18,13 +18,16 @@ public class PlayerController : MonoBehaviour
     /// 플레이어가 패링을 성공 했을 때 실행하는 델리게이트
     /// </summary>
     Action OnPlayerParrying;
-
-    public Action OnInteractionAction; // 인터렉션 델리게이트
+    /// <summary>
+    /// 플레이어 인터렉션 델리게이트
+    /// </summary>
+    public Action OnInteractionAction;
 
     // components
     PlayerInputActions actions;
     Animator animator;
     Rigidbody rigid;
+    public Collider attackCollider; // 무기 콜라이더
     public EnemyBase enemy;
 
     // player input values
@@ -87,7 +90,7 @@ public class PlayerController : MonoBehaviour
         playerModel = transform.GetChild(0);
 
         gameObject.GetComponent<Player>().onDamaged += () => OnDamagedAnimation(); // 피격 델리게이트
-        OnPlayerAttackToEnemy += () => enemy.Enemy_ChangeAttackFlag();
+        //OnPlayerAttackToEnemy += () => enemy.Enemy_ChangeAttackFlag();
         OnPlayerParrying += () => enemy.CheckParrying();
     }
 
@@ -173,7 +176,7 @@ public class PlayerController : MonoBehaviour
         // check interaction Object
         if (other.CompareTag("Interaction"))
         {
-            //GameUIManager.Instance.infoPanel.GetComponent<UI_Info>().targetObj = other.gameObject;
+            //GameUIManager.Instance.info.targetObj = other.gameObject; // 타겟 오브젝트 지정
             canInteraction = true;
         }
     }
@@ -325,10 +328,11 @@ public class PlayerController : MonoBehaviour
     IEnumerator AttackDelay()
     {
         isAttack = true;
-        OnPlayerAttackToEnemy?.Invoke();
-        yield return new WaitForSeconds(attackDelayTime);
+        attackCollider.enabled = true;
+        float animLength = animator.GetCurrentAnimatorClipInfo(0)[0].clip.length; // 현재 애니메이션 시간
+        yield return new WaitForSeconds(animLength);
+        attackCollider.enabled = false;
         isAttack = false;
-        OnPlayerAttackToEnemy?.Invoke();
     }
 
     void OnDamagedAnimation()

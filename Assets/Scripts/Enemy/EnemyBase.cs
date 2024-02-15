@@ -124,7 +124,6 @@ public class EnemyBase : MonoBehaviour
             }
         }
     }
-    bool isPlayerAttack = false; // 플레이어 공격 여부
     [SerializeField] bool isDamaged = false; // 피격 여부
     [SerializeField] bool isDead => HP <= 0; // 사망 여부
     [SerializeField] bool isFaint => Toughness <= 0; // 기절 여부 
@@ -164,7 +163,8 @@ public class EnemyBase : MonoBehaviour
         if (isDead)
             return;
 
-        if(other.gameObject.CompareTag("PlayerAttack") && !isDamaged && isPlayerAttack)
+        if(other.gameObject.CompareTag("PlayerAttack") 
+            && !isDamaged)
         {
             HP--;
             StartCoroutine(HitDelay());
@@ -243,14 +243,6 @@ public class EnemyBase : MonoBehaviour
 
         // 공격 딜레이 끝
         IsAttack = false;
-    }
-
-    /// <summary>
-    /// 플레이어가 적한테 공격을 할 수 있는지 없는지 상태 전환하는 함수(true : 공격 가능 , false : 공격 불가)
-    /// </summary>
-    public void Enemy_ChangeAttackFlag()
-    {
-        isPlayerAttack = !isPlayerAttack;
     }
 
     IEnumerator HitDelay()
