@@ -25,7 +25,7 @@ public class UI_Info : MonoBehaviour
         Rank = transform.GetChild(1).GetComponentInChildren<TextMeshProUGUI>();
         Desc = transform.GetChild(2).GetComponentInChildren<TextMeshProUGUI>();
 
-        GameManager.Instance.player.controller.OnInteractionAction += ActiveUI;
+        GameManager.Instance.player.GetComponent<Player>().OnInteractionAction += ActiveUI;
     }
 
 

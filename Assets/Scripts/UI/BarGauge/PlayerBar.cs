@@ -24,6 +24,6 @@ public class PlayerBar : BaseGauge
 
     protected override void UpdateUI()
     {
-        currentPlayerHP.fillAmount = player.HP / player.maxhp;
+        currentPlayerHP.fillAmount = player.HP / (float)player.maxhp;
     }
 }

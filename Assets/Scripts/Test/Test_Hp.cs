@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 public class Test_Hp : TestInput
 {
     public Player player;
-    public EnemyBase enemy;
+    public HSEnemy enemy;
 
     protected override void OnTest1(InputAction.CallbackContext context)
     {

@@ -8,14 +8,14 @@ using UnityEngine.UI;
 /// </summary>
 public class EnemyBar : BaseGauge
 {
-    EnemyBase enemy;
+    HSEnemy enemy;
 
     Image currentEnemyHP;
     Image currentEnemyToughness;
 
     protected override void Init()
     {
-        enemy = FindAnyObjectByType<EnemyBase>(); // enemy 스크립트가 있는 오브젝트 찾기
+        enemy = FindAnyObjectByType<HSEnemy>(); // enemy 스크립트가 있는 오브젝트 찾기
         if(enemy == null)
         {
             gameObject.SetActive(false); // 숨기기

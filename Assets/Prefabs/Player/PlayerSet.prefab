@@ -449,12 +449,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8441093152690857641}
-  - component: {fileID: 5249776544665112553}
   - component: {fileID: 2505242047262651651}
   - component: {fileID: 4453299691948596935}
   - component: {fileID: 3974960214838422026}
   - component: {fileID: 484148847078799673}
   - component: {fileID: 5255702434008396778}
+  - component: {fileID: 2411970545690345666}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -478,29 +478,6 @@ Transform:
   - {fileID: 8181015257652774256}
   m_Father: {fileID: 6510895927606084547}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5249776544665112553
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 492466305229566073}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c89d4126976e15f4bb50eb5082e4d40a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerInput: {x: 0, y: 0, z: 0}
-  mouseInput: {x: 0, y: 0}
-  moveSpeed: 2.5
-  rotSpeed: 5
-  rotationPower: 1
-  jumpPower: 5
-  attackDelayTime: 3
-  defenceDelayTime: 3
-  cameraFollowTransform: {fileID: 497813406473095668}
-  playerModel: {fileID: 8181015257652774256}
-  rotationLerp: 1.2
 --- !u!114 &2505242047262651651
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -513,7 +490,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fcf1a12edb26bd94d9528efdbd91f230, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enemy: {fileID: 0}
+  playerInput: {x: 0, y: 0, z: 0}
+  mouseInput: {x: 0, y: 0}
+  moveSpeed: 5
+  rotSpeed: 0.3
+  rotationPower: 1
+  jumpPower: 5
+  attackDelayTime: 3
+  defenceDelayTime: 3
   maxhp: 5
+  cameraFollowTransform: {fileID: 0}
+  playerModel: {fileID: 0}
+  rotationLerp: 1.2
+  canInteraction: 0
 --- !u!114 &4453299691948596935
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -615,6 +605,27 @@ CapsuleCollider:
   m_Height: 1.6
   m_Direction: 1
   m_Center: {x: 0, y: 0.8, z: 0}
+--- !u!65 &2411970545690345666
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 492466305229566073}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 20, y: 5, z: 20}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &515795179221258050
 GameObject:
   m_ObjectHideFlags: 0
@@ -1421,6 +1432,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7024890644561916656}
   - component: {fileID: 8549260773087076158}
+  - component: {fileID: 6845180276506960317}
   m_Layer: 0
   m_Name: AttackCollider
   m_TagString: PlayerAttack
@@ -1464,6 +1476,18 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.17, y: 0.96, z: 0.1}
   m_Center: {x: 0, y: 0.59, z: 0}
+--- !u!114 &6845180276506960317
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1438703300954167426}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 297bfa9cef8b23644a6303f02a19a6c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1485229804277288755
 GameObject:
   m_ObjectHideFlags: 0
@@ -2011,7 +2035,7 @@ MonoBehaviour:
   m_LookAt: {fileID: 0}
   m_Follow: {fileID: 497813406473095668}
   m_Lens:
-    FieldOfView: 60.000004
+    FieldOfView: 80
     OrthographicSize: 5
     NearClipPlane: 0.3
     FarClipPlane: 1000
@@ -2709,7 +2733,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b01bd9c1766c1f74796c339b77393731, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 5249776544665112553}
+  player: {fileID: 0}
   Offset: {x: 0, y: 1.6, z: 0}
 --- !u!1 &3107330950578106751
 GameObject:
@@ -6651,7 +6675,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60.000004
+  field of view: 80
   orthographic: 0
   orthographic size: 5
   m_Depth: -1

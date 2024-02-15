@@ -16,6 +16,12 @@ public class GameManager : Singleton<GameManager>
     /// </summary>
     public float timer = 0.0f;
 
+
+    protected override void OnPreInitialize()
+    {
+        player = FindAnyObjectByType<Player>();
+    }
+
     void Update()
     {
         timer += Time.deltaTime;

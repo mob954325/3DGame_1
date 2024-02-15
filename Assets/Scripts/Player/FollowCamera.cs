@@ -7,8 +7,13 @@ using UnityEngine;
 /// </summary>
 public class FollowCamera : MonoBehaviour
 {
-    public PlayerController player;
+    public Player player;
     public Vector3 Offset;
+
+    void Start()
+    {
+        player = FindAnyObjectByType<Player>();
+    }
 
     void FixedUpdate()
     {

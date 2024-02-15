@@ -3,42 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyBase : MonoBehaviour
+public class HSEnemy : MonoBehaviour
 {
     // Delegate
     /// <summary>
-    /// 플레이어한테 공격을 하는지 확인하는 델리게이트
+    /// 공격시 실행하는 델리게이트
     /// </summary>
-    Action OnEnemyAttackToPlayer;
+    Action onAttack;
 
     // Components
     Player player;
-
-    /// <summary>
-    /// player를 가진 오브젝트가 있는지 확인하기 위한 프로퍼티
-    /// </summary>
-    Player Player
-    {
-        get => player;
-        set
-        {
-            player = value;
-            if (player == null)
-            {
-                Debug.Log("Player 스크립트를 가진 오브젝트가 존재하지 않습니다.");
-    
-                // 존재하지 않으면 빈 오브젝트 스크립트 생성
-                GameObject emptyScriptObject = new GameObject("EmptyScript");
-                emptyScriptObject.transform.parent = transform;
-                emptyScriptObject.AddComponent<Player>();
-                player = emptyScriptObject.GetComponent<Player>();
-    
-                emptyScriptObject.SetActive(false);
-            }
-        }
-    }
-
-
+    WeaponControl weapon;
     Rigidbody rigid;
     Animator animator;
 
@@ -68,7 +43,7 @@ public class EnemyBase : MonoBehaviour
             hp = value;
             Debug.Log($"적의 체력이 [{hp}]만큼 남았습니다");
 
-            if (hp < 0)
+            if (hp <= 0)
             {
                 hp = 0;
                 Die();
@@ -107,7 +82,7 @@ public class EnemyBase : MonoBehaviour
 
     // Flags
     [Header("Enemy Flag")]
-    [SerializeField] bool isAttack = false;
+    bool isAttack = false;
     /// <summary>
     /// 공격 했는지 확인하는 파라미터
     /// </summary>
@@ -124,30 +99,30 @@ public class EnemyBase : MonoBehaviour
             }
         }
     }
-    [SerializeField] bool isDamaged = false; // 피격 여부
+    bool isDamaged = false; // 피격 여부
     [SerializeField] bool isDead => HP <= 0; // 사망 여부
     [SerializeField] bool isFaint => Toughness <= 0; // 기절 여부 
-    float playerDefenceTIme = 0f; // player가 방어한 시간 저장 변수
-    bool alreadyParrying = false; // 이미 패링당했는지 확인하는 변수
+    //float playerDefenceTIme = 0f; // player가 방어한 시간 저장 변수
+    //bool alreadyParrying = false; // 이미 패링당했는지 확인하는 변수
 
     void Awake()
     {
-        Player = FindAnyObjectByType<Player>();
+        player = FindAnyObjectByType<Player>();
         animator = GetComponentInChildren<Animator>();
         rigid = GetComponent<Rigidbody>();
+        weapon = GetComponentInChildren<WeaponControl>();
 
         // setting values
         baseSpeed = speed; // speed 값 저장
         HP = maxHp;
         Toughness = maxToughness;
 
-        // add function to delegate
-        OnEnemyAttackToPlayer += () => Player.Player_ChangeAttackFlag();
+        onAttack += weapon.ChangeColliderEnableState;
     }
 
     void FixedUpdate()
     {
-        direction = Player.transform.position - transform.position; // 플레이어 방향 백터
+        direction = player.transform.position - transform.position; // 플레이어 방향 백터
         animator.SetFloat(SpeedToHash, speed);
 
         // 적 행동 함수들
@@ -163,14 +138,14 @@ public class EnemyBase : MonoBehaviour
         if (isDead)
             return;
 
-        if(other.gameObject.CompareTag("PlayerAttack") 
-            && !isDamaged)
+        if(other.CompareTag("PlayerAttack") && !isDamaged)
         {
             HP--;
+            animator.SetTrigger(DamagedToHash);
             StartCoroutine(HitDelay());
 
-            if (isFaint) return;
-            animator.SetTrigger(DamagedToHash);
+            //if (isFaint) return;
+            //animator.SetTrigger(DamagedToHash);
         }
     }
 
@@ -185,7 +160,7 @@ public class EnemyBase : MonoBehaviour
         {
             if (!IsAttack)
             {
-                alreadyParrying = false; // 패링 조건 활성화
+                //alreadyParrying = false; // 패링 조건 활성화
 
                 StopAllCoroutines();
                 StartCoroutine(Attack());
@@ -220,15 +195,16 @@ public class EnemyBase : MonoBehaviour
     {
         speed = 0f;
         // 공격 애니메이션 실행
-        animator.SetTrigger(AttackToHash);
+        animator.SetTrigger(AttackToHash); // 공격 애니메이션 플레이
+
         IsAttack = true;
+        onAttack?.Invoke(); // 무기 콜라이더 활성화
 
-        OnEnemyAttackToPlayer?.Invoke(); // Player.cs 적 공격 flag 변경
-
-        attackAnimTime = animator.GetCurrentAnimatorStateInfo(0).length; // 공격 모션 애니메이션 재생시간
+        attackAnimTime = GetAnimClipLength("Enemy_Attack");
+        Debug.Log(attackAnimTime);
         yield return new WaitForSeconds(attackAnimTime);
 
-        OnEnemyAttackToPlayer?.Invoke();
+        onAttack?.Invoke(); // 무기 콜라이더 비활성화
 
         // 뒤로 물러나기
         StepBackTime = UnityEngine.Random.Range(1, attackDelay - attackAnimTime); // 뒤로 물러가는 랜덤 시간
@@ -245,24 +221,31 @@ public class EnemyBase : MonoBehaviour
         IsAttack = false;
     }
 
+    /// <summary>
+    /// 피격 무적 코루틴
+    /// </summary>
+    /// <returns></returns>
     IEnumerator HitDelay()
     {
         isDamaged = true;
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(0.7f);
         isDamaged = false;
     }
 
+    /// <summary>
+    /// 죽으면 실행되는 함수
+    /// </summary>
     void Die()
     {
         animator.SetTrigger(DieToHash);
     }
 
-    /// <summary>
+/*    /// <summary>
     /// 플레이어가 패링이 가능한지 확인하는 함수
     /// </summary>
     public void CheckParrying()
     {
-        playerDefenceTIme = Player.GetComponent<Player>().GetDefenceTime();
+        playerDefenceTIme = player.GetDefenceTime();
 
         if (IsAttack && playerDefenceTIme > 0 
             && playerDefenceTIme <= parryingChanceTime
@@ -275,7 +258,7 @@ public class EnemyBase : MonoBehaviour
             Toughness -= 20;
             animator.SetTrigger(DamagedToHash); // 피해 받음
         }
-    }
+    }*/
 
     /// <summary>
     /// 기절 후 수행할 함수
@@ -285,5 +268,25 @@ public class EnemyBase : MonoBehaviour
         Toughness = maxToughness;
         animator.SetBool(isFaintToHash, isFaint);
         speed = baseSpeed;
+    }
+
+    /// <summary>
+    /// 특정 애니메이션 시간을 찾는 함수
+    /// </summary>
+    /// <param name="clipName">찾는 애니메이션 이름</param>
+    /// <returns>clipName 애니메이션 시간</returns>
+    float GetAnimClipLength(string clipName)
+    {
+        float time = 0;
+        RuntimeAnimatorController ac = animator.runtimeAnimatorController;
+
+        for (int i = 0; i < ac.animationClips.Length; i++)
+        {
+            if (ac.animationClips[i].name == clipName)
+            {
+                time = ac.animationClips[i].length;
+            }
+        }
+        return time;
     }
 }
