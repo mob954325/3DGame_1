@@ -3,58 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// UI관리 스크립트
+/// </summary>
 public class GameUIManager : Singleton<GameUIManager>
 {
-    // Characters in Games
-    public Player player;
-    public EnemyBase enemy;
-
-    // UI
-    [Header("UI")]
-    [Header("Enemy")]
-    public GameObject enemyHpBar;
-    Image currentEnemyHP;
-
-    public GameObject enemyToughnessBar;
-    Image currentPlayerToughness;
-
-    [Space(10f)]
-    [Header("Player")]
-    public GameObject playerHpBar;
-    Image currentPlayerHP;
-
-    [Header("Info Panel")]
-    public GameObject infoPanel;
+    [Header("Gauge UI")]
+    PlayerBar playerBar;
+    EnemyBar enemyBar;
 
     protected override void OnInitialize()
     {
-        enemy = FindAnyObjectByType<EnemyBase>();
-        player = FindAnyObjectByType<Player>();
-
-        // UI
-        currentEnemyHP = enemyHpBar.transform.GetChild(1).gameObject.GetComponent<Image>();
-        currentPlayerToughness = enemyToughnessBar.transform.GetChild(1).gameObject.GetComponent<Image>();
-        currentPlayerHP = playerHpBar.transform.GetChild(1).gameObject.GetComponent<Image>();
-    }
-
-    void Update()
-    {
-        BarUI();
-    }
-
-    /// <summary>
-    /// Bar UI 모음
-    /// </summary>
-    void BarUI()
-    {
-        if (player != null && enemy != null)
-        {
-            // Enemy
-            currentEnemyHP.fillAmount = enemy.HP / (float)enemy.maxHp;
-            currentPlayerToughness.fillAmount = enemy.Toughness / (float)enemy.maxToughness;
-
-            // Player
-            currentPlayerHP.fillAmount = player.HP / (float)player.maxhp;
-        }
+        playerBar = FindAnyObjectByType<PlayerBar>();
+        enemyBar = FindAnyObjectByType<EnemyBar>();
     }
 }

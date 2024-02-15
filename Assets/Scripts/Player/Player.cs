@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    // 24.02.15
+
     // Component
     Animator animator;
     // Delegate
@@ -66,10 +68,11 @@ public class Player : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.CompareTag("EnemyAttack"))
+        // 적 공격 감지
+        if (other.gameObject.CompareTag("EnemyAttack"))
         {
             istriggerHit = true;
-            if(!isDamaged && isEnemyAttack && !canDefence && istriggerHit)
+            if (!isDamaged && isEnemyAttack && !canDefence && istriggerHit)
             {
                 onDamaged?.Invoke(); // 공격 델리게이트 함수 실행
                 StartCoroutine(HitDelay());
