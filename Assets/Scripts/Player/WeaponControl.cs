@@ -17,6 +17,14 @@ public class WeaponControl : MonoBehaviour
         coll.enabled = false;
     }
 
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Shield"))
+        {
+            Debug.Log("공격이 방패에 닿았음 Trigger ");
+        }
+    }
+
     /// <summary>
     /// 무기 콜라이더를 활성화, 비활성화 하는 함수 (실행하면 bool값이 전환됨, 초기값: false)
     /// </summary>

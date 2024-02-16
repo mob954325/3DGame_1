@@ -58,7 +58,7 @@ public class HSEnemy : MonoBehaviour
         set
         {
             toughness = value;
-            Debug.Log($"남은 강인성 : [{toughness}]");
+            //Debug.Log($"남은 강인성 : [{toughness}]");
 
             if(toughness <= 0)
             {
@@ -200,7 +200,7 @@ public class HSEnemy : MonoBehaviour
         IsAttack = true;
         onAttack?.Invoke(); // 무기 콜라이더 활성화
 
-        attackAnimTime = GetAnimClipLength("Enemy_Attack");
+        attackAnimTime = GetAnimClipLength("1HSEnemy_Attack"); // 수정해야함
         Debug.Log(attackAnimTime);
         yield return new WaitForSeconds(attackAnimTime);
 

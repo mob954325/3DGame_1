@@ -191,6 +191,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &162729079 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 497813406473095668, guid: 5261a06dae9eb7b46a883e7b528c0057, type: 3}
+  m_PrefabInstance: {fileID: 436526839}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &172087078
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -301,6 +306,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2505242047262651651, guid: 5261a06dae9eb7b46a883e7b528c0057, type: 3}
+      propertyPath: rotSpeed
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 2505242047262651651, guid: 5261a06dae9eb7b46a883e7b528c0057, type: 3}
+      propertyPath: cameraFollowTransform
+      value: 
+      objectReference: {fileID: 162729079}
     - target: {fileID: 2876417752292749124, guid: 5261a06dae9eb7b46a883e7b528c0057, type: 3}
       propertyPath: m_Name
       value: PlayerSet
@@ -2335,7 +2348,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 930401890}
-  enemy: {fileID: 1431447127}
+  enemy: {fileID: 0}
 --- !u!4 &1106665767
 Transform:
   m_ObjectHideFlags: 0
@@ -2448,17 +2461,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1e3f19abd17d1984bb2f5e6d3bb79a55, type: 3}
---- !u!114 &1431447127 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3307011568190406999, guid: 57781714d65552741bb6a0708783d137, type: 3}
-  m_PrefabInstance: {fileID: 886979864}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3dbb987febdad8c43884b1a6553bd736, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1537554361
 GameObject:
   m_ObjectHideFlags: 0

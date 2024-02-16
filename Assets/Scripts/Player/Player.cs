@@ -15,10 +15,6 @@ public class Player : MonoBehaviour
     /// </summary>
     Action OnAttack;
     /// <summary>
-    /// 플레이어가 패링을 성공 했을 때 실행하는 델리게이트
-    /// </summary>
-    Action OnPlayerParrying;
-    /// <summary>
     /// 플레이어 인터렉션 델리게이트
     /// </summary>
     public Action OnInteractionAction;
@@ -27,25 +23,33 @@ public class Player : MonoBehaviour
     PlayerInputActions actions;
     Animator animator;
     Rigidbody rigid;
+    HSEnemy enemy;
+    
     WeaponControl weapon;
-    public HSEnemy enemy;
+    ShieldControl shield;
 
-    // player input values
+    // 플레이어 인풋값을 받는 변수
+    [Header("Input Value")]
     public Vector3 playerInput;
     public Vector2 mouseInput;
 
     // player Stats
-    float baseSpeed; // 플레이어 스피드 저장 변수
+    [Header("Input Stats")]
     public float moveSpeed = 5.0f; // 플레이어의 현재 스피드 변수
-    public float rotSpeed = 15f; // 플레이어 회전 속도
+    float baseSpeed; // 플레이어 스피드 저장 변수
+
     [Range(0f,1f)]
     public float rotationPower = 5.0f; // 플레이어 회전력
+    public float rotSpeed = 15f; // 플레이어 회전 속도
     public float jumpPower = 5.0f; // 점프력
+
+    [Space(12f)]
     [Range(1.5f,3f)]
     public float attackDelayTime = 3.0f; // 공격 딜레이 시간
     const float defenceAnimTime = 2.0f; // 방밀 애니메이션 딜레이 시간
     public float defenceDelayTime = 3.0f; // 방어 딜레이 시간
 
+    [Space(12f)]
     // Hp
     public int maxhp = 5;
     int hp;
@@ -65,17 +69,16 @@ public class Player : MonoBehaviour
         }
     }
 
+    [Header("Objects")]
     // player's Transform objects
     public Transform cameraFollowTransform;
     public Transform playerModel;
 
-    public float rotationLerp = 1.2f;
-
     // player movement
     [Header("Movement")]
-    Vector3 moveDirection;
-    float inputVertical = 0f;
-    float inputHorizontal = 0f;
+    Vector3 moveDirection; // 플레이어 움직임 방향
+    float inputVertical = 0f; // 플레이어의 상 하 인풋값
+    float inputHorizontal = 0f; // 플레이어의 좌 우 인풋값
 
     // player animator
     readonly int inputVerticalToHash = Animator.StringToHash("Vertical"); // input.z
@@ -83,21 +86,19 @@ public class Player : MonoBehaviour
     readonly int jumpToHash = Animator.StringToHash("Jump");
     readonly int attackToHash = Animator.StringToHash("Attack");
     readonly int damagedToHash = Animator.StringToHash("Damaged");
-    readonly int defenceToHash = Animator.StringToHash("isDefence");
+    readonly int defenceToHash = Animator.StringToHash("isDefence"); // 방패 밀치기를 하는 animator parameter ( true : 방패 들기, false : 방패로 치기)
     readonly int ActiveDefenceToHash = Animator.StringToHash("ActiveDefence");
-    readonly int DieToHash = Animator.StringToHash("Die"); // ?
+    readonly int DieToHash = Animator.StringToHash("Die");
 
     // player flag
     bool isJump = false;
     bool isAttack = false;
     bool isDamaged = false;
-    bool isDefence = false; // 플레이어가 방어 자세를 하려는지 확인하는 flag
-    bool defenceDelayActive = false; // 플레이어가 방어를 할 수 있는지 확인하는 flag 변수 ( true : 방어 못함, false : 방어 가능) 
-
+    public bool isDefence = false; // 플레이어가 방어를 하는지 확인하는 flag
     bool isLockOn = false; // 플레이어가 락온을 활성화 했는지 확인하는 flag
     float checkEnemyAngle = 0f;
 
-    [SerializeField] bool canInteraction = false; // 플레이어가 상호작용이 가능한지 확인하는 flag
+    //[SerializeField] bool canInteraction = false; // 플레이어가 상호작용이 가능한지 확인하는 flag
 
 
     void Awake()
@@ -108,6 +109,7 @@ public class Player : MonoBehaviour
         animator = GetComponent<Animator>();
         enemy = FindAnyObjectByType<HSEnemy>();
         weapon = GetComponentInChildren<WeaponControl>();
+        shield = GetComponentInChildren<ShieldControl>();
         cameraFollowTransform = FindAnyObjectByType<FollowCamera>().transform;
         playerModel = transform.GetChild(0);
 
@@ -117,7 +119,6 @@ public class Player : MonoBehaviour
 
         // 델리게이트
         OnAttack += weapon.ChangeColliderEnableState;
-        //OnPlayerParrying += () => enemy.CheckParrying();
     }
 
     void Start()
@@ -149,7 +150,7 @@ public class Player : MonoBehaviour
 
     private void OnInteraction(InputAction.CallbackContext context)
     {
-        if(context.performed && canInteraction)
+        if(context.performed)
         {
             //GameUIManager.Instance.infoPanel.GetComponent<UI_Info>().ActiveUI();
             OnInteractionAction?.Invoke();
@@ -199,7 +200,8 @@ public class Player : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         // 적 공격 감지
-        if (other.gameObject.CompareTag("EnemyAttack") && !isDamaged)
+        if (other.CompareTag("EnemyAttack") && !isDamaged 
+            && !isDefence)
         {
             animator.SetTrigger(damagedToHash);
             StartCoroutine(HitDelay());
@@ -209,7 +211,7 @@ public class Player : MonoBehaviour
         if (other.CompareTag("Interaction"))
         {
             //GameUIManager.Instance.info.targetObj = other.gameObject; // 타겟 오브젝트 지정
-            canInteraction = true;
+            //canInteraction = true;
         }
     }
 
@@ -218,7 +220,7 @@ public class Player : MonoBehaviour
         // check interaction Object
         if (other.CompareTag("Interaction"))
         {
-            canInteraction = false;
+            //canInteraction = false;
             //GameUIManager.Instance.infoPanel.GetComponent<UI_Info>().gameObject.SetActive(false);
         }
     }
@@ -375,31 +377,23 @@ public class Player : MonoBehaviour
     // Defence
     private void OnDefenceInput(InputAction.CallbackContext context)
     {
-        if (context.performed && !defenceDelayActive)
+        if (context.performed && !isDefence)
         {
-            defenceDelayActive = true; 
-
             // Set animator paramaters
-            isDefence = true;
-
-            animator.SetTrigger(ActiveDefenceToHash);
-            animator.SetBool(defenceToHash, isDefence);
+            animator.SetTrigger(ActiveDefenceToHash); // 방패 들기 트리거
+            animator.SetBool(defenceToHash, true); // 방패 밀치기 준비
 
             // check Enemay Attack Angle
             checkEnemyAngle = Vector3.SignedAngle(playerModel.transform.forward, enemy.transform.forward, transform.up);
             if (checkEnemyAngle >= -180 && checkEnemyAngle <= -90 || checkEnemyAngle <= 180 && checkEnemyAngle >= 90) // 플레이어가 적을 바라보고 있으면 방어 가능
             {
-                //canDefence = true;
-            }
-            else
-            {
-               //canDefence = false;
+                isDefence = true;
             }
 
-            StartCoroutine(DefenceDelay()); // 방어 딜레이 코루틴
         }
         if (context.canceled)
         {
+            animator.SetBool(defenceToHash, false); // 방패 밀치기 준비
             StartCoroutine(AfterDefence());
         }
     }
@@ -412,18 +406,8 @@ public class Player : MonoBehaviour
     {
         animator.SetBool(defenceToHash, false);
 
-        OnPlayerParrying?.Invoke(); // 방패 밀치기 중에 패링을 할 수 있는지 확인
-
         isDefence = false; // 방패 밀치기 애니메이션 시작
         yield return new WaitForSeconds(defenceAnimTime);
-
-        //canDefence = false; // 방어 못함
-    }
-
-    IEnumerator DefenceDelay()
-    {
-        yield return new WaitForSecondsRealtime(defenceDelayTime);
-        defenceDelayActive = false;
     }
 
     private void OnLockCameraInput(InputAction.CallbackContext context)
@@ -448,7 +432,7 @@ public class Player : MonoBehaviour
     /// </summary>
     void Die()
     {
-        animator.SetTrigger("Die");
+        animator.SetTrigger(DieToHash);
     }
 
     /// <summary>
