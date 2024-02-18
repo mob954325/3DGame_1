@@ -1476,16 +1476,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc09fe3adfe3a914383e89f0f62724fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 3
+  speed: 2
   rotateSpeed: 5
-  attackRange: 2
+  attackRange: 2.3
   attackDelay: 2.5
-  parryingChanceTime: 0.5
+  ToughnessDelay: 2
   StepBackTime: 0
   maxHp: 10
   maxToughness: 100
-  isAttack: 0
-  isDamaged: 0
 --- !u!54 &6444709283238192498
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1641,10 +1639,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4566564869660668236}
+  - component: {fileID: 5542581540483869961}
   - component: {fileID: 2269196856796368138}
   - component: {fileID: 8993349280822868417}
-  - component: {fileID: 6417290430074970643}
-  - component: {fileID: 6033020650742356950}
+  - component: {fileID: 6839186276592804154}
   m_Layer: 0
   m_Name: MeleeWarriorSword
   m_TagString: EnemyAttack
@@ -1667,6 +1665,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1384121061815974155}
   m_LocalEulerAnglesHint: {x: -180, y: 0, z: 0}
+--- !u!114 &5542581540483869961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6828658182949493738}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 297bfa9cef8b23644a6303f02a19a6c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isDefenced: 0
 --- !u!33 &2269196856796368138
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -1717,7 +1728,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &6417290430074970643
+--- !u!65 &6839186276592804154
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1734,22 +1745,10 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
-  m_Size: {x: 0.2911798, y: 0.9482271, z: 0.145093}
+  m_Size: {x: 0.2, y: 0.9482271, z: 0.03}
   m_Center: {x: -0.00022397947, y: 0.6176451, z: 0.0000005406927}
---- !u!114 &6033020650742356950
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6828658182949493738}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 297bfa9cef8b23644a6303f02a19a6c0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &6841046100096857806
 GameObject:
   m_ObjectHideFlags: 0

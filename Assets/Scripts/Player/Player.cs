@@ -15,6 +15,13 @@ public class Player : MonoBehaviour
     /// </summary>
     Action OnAttack;
     /// <summary>
+    /// 플레이어가 방어할 때 실행하는 델리게이트
+    /// </summary>
+    Action OnDefence;
+    Action OnParrying;
+
+    
+    /// <summary>
     /// 플레이어 인터렉션 델리게이트
     /// </summary>
     public Action OnInteractionAction;
@@ -46,7 +53,6 @@ public class Player : MonoBehaviour
     [Space(12f)]
     [Range(1.5f,3f)]
     public float attackDelayTime = 3.0f; // 공격 딜레이 시간
-    const float defenceAnimTime = 2.0f; // 방밀 애니메이션 딜레이 시간
     public float defenceDelayTime = 3.0f; // 방어 딜레이 시간
 
     [Space(12f)]
@@ -94,11 +100,12 @@ public class Player : MonoBehaviour
     bool isJump = false;
     bool isAttack = false;
     bool isDamaged = false;
-    public bool isDefence = false; // 플레이어가 방어를 하는지 확인하는 flag
-    bool isLockOn = false; // 플레이어가 락온을 활성화 했는지 확인하는 flag
+    public bool isDefence = false; // 플레이어가 방어를 하는지 확인하는 bool
+    bool isLockOn = false; // 플레이어가 락온을 활성화 했는지 확인하는 bool
+    bool isDefenceAttack = false; // 플레이어가 방패밀치기를 했는지 확인하는 bool
     float checkEnemyAngle = 0f;
 
-    //[SerializeField] bool canInteraction = false; // 플레이어가 상호작용이 가능한지 확인하는 flag
+    //[SerializeField] bool canInteraction = false; // 플레이어가 상호작용이 가능한지 확인하는 bool
 
 
     void Awake()
@@ -118,7 +125,9 @@ public class Player : MonoBehaviour
         baseSpeed = moveSpeed;
 
         // 델리게이트
-        OnAttack += weapon.ChangeColliderEnableState;
+        OnAttack += weapon.ChangeColliderEnableState; 
+        OnDefence += shield.ChangeColliderEnableState;
+        if(enemy != null) OnParrying += enemy.CheckDefenced;
     }
 
     void Start()
@@ -178,6 +187,7 @@ public class Player : MonoBehaviour
 
     void FixedUpdate()
     {
+        Debug.Log(isDefenceAttack);
         playerMove();
         GetPlayerMoveInput();
         PlayerRotate();
@@ -200,11 +210,18 @@ public class Player : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         // 적 공격 감지
-        if (other.CompareTag("EnemyAttack") && !isDamaged 
-            && !isDefence)
+        if (other.CompareTag("EnemyAttack"))
         {
-            animator.SetTrigger(damagedToHash);
-            StartCoroutine(HitDelay());
+            if(isDefenceAttack) // 공격에 닿았을때 방패 밀치기를 수행하면 실행
+            {
+                OnParrying?.Invoke(); // 패링 델리게이트 실행 
+            }
+            if (!isDamaged && !isDefence) // 피격당할 시
+            {
+                animator.SetTrigger(damagedToHash);
+                StartCoroutine(HitDelay());
+            }
+
         }
 
         // check interaction Object
@@ -383,13 +400,9 @@ public class Player : MonoBehaviour
             animator.SetTrigger(ActiveDefenceToHash); // 방패 들기 트리거
             animator.SetBool(defenceToHash, true); // 방패 밀치기 준비
 
-            // check Enemay Attack Angle
-            checkEnemyAngle = Vector3.SignedAngle(playerModel.transform.forward, enemy.transform.forward, transform.up);
-            if (checkEnemyAngle >= -180 && checkEnemyAngle <= -90 || checkEnemyAngle <= 180 && checkEnemyAngle >= 90) // 플레이어가 적을 바라보고 있으면 방어 가능
-            {
-                isDefence = true;
-            }
+            OnDefence?.Invoke(); // 방패 콜라이더 활성화
 
+            isDefence = true; // 방어를 할 수 있다
         }
         if (context.canceled)
         {
@@ -407,7 +420,13 @@ public class Player : MonoBehaviour
         animator.SetBool(defenceToHash, false);
 
         isDefence = false; // 방패 밀치기 애니메이션 시작
+        float defenceAnimTime = GetAnimClipLength("Player_Defence_Attack");
+        Debug.Log(defenceAnimTime);
+        isDefenceAttack = true;
         yield return new WaitForSeconds(defenceAnimTime);
+
+        isDefenceAttack = false;
+        OnDefence?.Invoke(); // 방패 콜라이더 비활성화
     }
 
     private void OnLockCameraInput(InputAction.CallbackContext context)

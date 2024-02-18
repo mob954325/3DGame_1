@@ -30,7 +30,7 @@ public class HSEnemy : MonoBehaviour
     [Space (10f)]
     public float attackRange = 2.0f;
     public float attackDelay = 2.5f;
-    public float parryingChanceTime = 0.5f; // 방어를 시작한 순간 패링 찬스를 얻는 시간 값
+    public float ToughnessDelay = 2f;  // 강인성 감소 딜레이 시간
     [SerializeField] float StepBackTime = 0f;
 
     int hp;
@@ -52,23 +52,30 @@ public class HSEnemy : MonoBehaviour
     }
 
     int toughness = 0; // 강인성 (0이되면 기절)
+
+    /// <summary>
+    /// 강인성(toughness)를 참조하는 파라미터 (0이되면 기절 애니메이션을 실행한다)
+    /// </summary>
     public int Toughness
     {
         get => toughness;
         set
         {
             toughness = value;
-            //Debug.Log($"남은 강인성 : [{toughness}]");
+            Debug.Log($"남은 강인성 : [{toughness}]");
+            animator.SetBool(isFaintToHash, isFaint);
 
             if(toughness <= 0)
             {
                 toughness = 0;
                 speed = 0;
 
-                animator.SetBool(isFaintToHash, isFaint);
-                Invoke("AfterFaint", 5f);
-            }
+                // 애니메이션 실행
+                animator.SetTrigger(faintToHash);
 
+                Invoke("AfterFaint", 3f);
+                //StartCoroutine(AfterFaint());
+            }
         }
     }
     public int maxToughness = 100;
@@ -78,7 +85,8 @@ public class HSEnemy : MonoBehaviour
     readonly int AttackToHash = Animator.StringToHash("Attack");
     readonly int DamagedToHash = Animator.StringToHash("Damaged");
     readonly int DieToHash = Animator.StringToHash("Die");
-    readonly int isFaintToHash = Animator.StringToHash("isFaint");
+    readonly int faintToHash = Animator.StringToHash("Faint"); // 기절 trigger 
+    readonly int isFaintToHash = Animator.StringToHash("isFaint"); // 기절이 끝나기 전까지 대기하게 하는 animator bool값
 
     // Flags
     [Header("Enemy Flag")]
@@ -100,10 +108,11 @@ public class HSEnemy : MonoBehaviour
         }
     }
     bool isDamaged = false; // 피격 여부
-    [SerializeField] bool isDead => HP <= 0; // 사망 여부
-    [SerializeField] bool isFaint => Toughness <= 0; // 기절 여부 
-    //float playerDefenceTIme = 0f; // player가 방어한 시간 저장 변수
-    //bool alreadyParrying = false; // 이미 패링당했는지 확인하는 변수
+    bool isDead => HP <= 0; // 사망 여부
+    bool isFaint => Toughness <= 0; // 기절 여부 
+    bool isAttackBlocked => weapon.CheckIsDefenced(); // 공격이 막혔는지 확인하는 변수
+    bool canToughnessChange = true; // 강인성이 감소 될 수 있는지 확인하는 bool 값 (true : 강인성 감소 가능 , false : 강인성 감소 불가능)
+
 
     void Awake()
     {
@@ -126,7 +135,7 @@ public class HSEnemy : MonoBehaviour
         animator.SetFloat(SpeedToHash, speed);
 
         // 적 행동 함수들
-        if(!isDead && !isFaint)
+        if (!isDead && !isFaint)
         {
             MoveToPlayer();
             RotateToPlayer();
@@ -140,17 +149,18 @@ public class HSEnemy : MonoBehaviour
 
         if(other.CompareTag("PlayerAttack") && !isDamaged)
         {
+            if (isFaint) return;
+
             HP--;
+            isDamaged = true;
             animator.SetTrigger(DamagedToHash);
             StartCoroutine(HitDelay());
 
-            //if (isFaint) return;
-            //animator.SetTrigger(DamagedToHash);
         }
     }
 
     /// <summary>
-    /// 플레이어한테 이동하는 함수
+    /// 플레이어한테 이동하는 함수 ( AttackRange 내에 도달하면 공격 )
     /// </summary>
     void MoveToPlayer()
     {
@@ -160,10 +170,8 @@ public class HSEnemy : MonoBehaviour
         {
             if (!IsAttack)
             {
-                //alreadyParrying = false; // 패링 조건 활성화
-
-                StopAllCoroutines();
-                StartCoroutine(Attack());
+                StopCoroutine(Attack());
+                StartCoroutine(Attack()); // 공격 코루틴 시작
             }
         }
     }
@@ -200,8 +208,8 @@ public class HSEnemy : MonoBehaviour
         IsAttack = true;
         onAttack?.Invoke(); // 무기 콜라이더 활성화
 
-        attackAnimTime = GetAnimClipLength("1HSEnemy_Attack"); // 수정해야함
-        Debug.Log(attackAnimTime);
+        attackAnimTime = GetAnimClipLength("1HSEnemy_Attack"); // 공격 애니메이션 시작
+
         yield return new WaitForSeconds(attackAnimTime);
 
         onAttack?.Invoke(); // 무기 콜라이더 비활성화
@@ -227,7 +235,6 @@ public class HSEnemy : MonoBehaviour
     /// <returns></returns>
     IEnumerator HitDelay()
     {
-        isDamaged = true;
         yield return new WaitForSeconds(0.7f);
         isDamaged = false;
     }
@@ -240,33 +247,45 @@ public class HSEnemy : MonoBehaviour
         animator.SetTrigger(DieToHash);
     }
 
-/*    /// <summary>
-    /// 플레이어가 패링이 가능한지 확인하는 함수
+    /// <summary>
+    /// 플레이어한테 방어를 당하면 실항하는 함수
     /// </summary>
-    public void CheckParrying()
+    public void CheckDefenced()
     {
-        playerDefenceTIme = player.GetDefenceTime();
+        if (!isAttackBlocked)
+            return;
 
-        if (IsAttack && playerDefenceTIme > 0 
-            && playerDefenceTIme <= parryingChanceTime
-            && direction.magnitude <= attackRange
-            && !alreadyParrying)
+        Debug.Log("적이 방어 당함");
+        //StopCoroutine(Attack());
+
+        // 피격 모션 실행
+        animator.SetTrigger(DamagedToHash);
+        
+        if(canToughnessChange)
         {
-            alreadyParrying = true;
-            // 공격 정지
-            StopCoroutine(Attack());
-            Toughness -= 20;
-            animator.SetTrigger(DamagedToHash); // 피해 받음
+            Toughness -= 20; // 강인성 감소
+            StartCoroutine(BlockedDelay());
         }
-    }*/
+    }
+
+    IEnumerator BlockedDelay()
+    {
+        canToughnessChange = false;
+        //weapon.ChangeIsDefencedState(); // weapon.isDefenced bool 값 변경
+
+        yield return new WaitForSeconds(ToughnessDelay);
+
+        Debug.Log("플레이어가 다시 방어를 할 수 있습니다. !!!");
+        canToughnessChange = true;
+    }
 
     /// <summary>
     /// 기절 후 수행할 함수
     /// </summary>
     void AfterFaint()
     {
-        Toughness = maxToughness;
         animator.SetBool(isFaintToHash, isFaint);
+        Toughness = maxToughness;
         speed = baseSpeed;
     }
 

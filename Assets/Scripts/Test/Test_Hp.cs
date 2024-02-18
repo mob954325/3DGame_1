@@ -7,12 +7,13 @@ public class Test_Hp : TestInput
 {
     public Player player;
     public HSEnemy enemy;
+    public GameObject sword;
 
     protected override void OnTest1(InputAction.CallbackContext context)
     {
         if(context.performed)
         {
-            player.HP--;
+            //
         }
     }
 
@@ -20,7 +21,7 @@ public class Test_Hp : TestInput
     {
         if (context.performed)
         {
-            enemy.HP--;
+            //
         }
     }
     protected override void OnTest3(InputAction.CallbackContext context)
@@ -28,6 +29,22 @@ public class Test_Hp : TestInput
         if (context.performed)
         {
             enemy.Toughness -= 20;
+        }
+    }
+
+    protected override void OnTest4(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            Time.timeScale = 0.2f;
+        }
+    }
+
+    protected override void OnTest5(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            Time.timeScale = 1f;
         }
     }
 }

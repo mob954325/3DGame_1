@@ -10,6 +10,7 @@ public class WeaponControl : MonoBehaviour
     Collider coll;
 
     bool isEnable = false;
+    [SerializeField] bool isDefenced = false;
 
     void Awake()
     {
@@ -17,11 +18,28 @@ public class WeaponControl : MonoBehaviour
         coll.enabled = false;
     }
 
+    // 방패에 닿았는지 체크
     void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Shield"))
+        if (other.CompareTag("Shield"))
         {
-            Debug.Log("공격이 방패에 닿았음 Trigger ");
+            isDefenced = true;
+        }
+    }
+
+    void OnTriggerStay(Collider other)
+    {
+        if (other.CompareTag("Shield"))
+        {
+            isDefenced = true;
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Shield"))
+        {
+            isDefenced = false;
         }
     }
 
@@ -32,5 +50,20 @@ public class WeaponControl : MonoBehaviour
     {
         isEnable = !isEnable;
         coll.enabled = isEnable;
+    }
+
+    public void ChangeIsDefencedState()
+    {
+        Debug.Log("상태 변경");
+        isDefenced = !isDefenced;
+    }
+
+    /// <summary>
+    /// 공격이 방패에 막혔는지 여부를 반환하는 함수 (true : 막힘, false : 안막힘)
+    /// </summary>
+    /// <returns>방어 당했는지 확인하는 bool값</returns>
+    public bool CheckIsDefenced()
+    {
+        return isDefenced;
     }
 }
