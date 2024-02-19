@@ -35,13 +35,13 @@ public class WeaponControl : MonoBehaviour
         }
     }
 
-    void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Shield"))
-        {
-            isDefenced = false;
-        }
-    }
+    //void OnTriggerExit(Collider other)
+    //{
+    //    if (other.CompareTag("Shield"))
+    //    {
+    //        isDefenced = false;
+    //    }
+    //}
 
     /// <summary>
     /// 무기 콜라이더를 활성화, 비활성화 하는 함수 (실행하면 bool값이 전환됨, 초기값: false)
@@ -54,7 +54,6 @@ public class WeaponControl : MonoBehaviour
 
     public void ChangeIsDefencedState()
     {
-        Debug.Log("상태 변경");
         isDefenced = !isDefenced;
     }
 

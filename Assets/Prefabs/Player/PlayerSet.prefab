@@ -494,14 +494,17 @@ MonoBehaviour:
   mouseInput: {x: 0, y: 0}
   moveSpeed: 5
   rotationPower: 1
-  rotSpeed: 10
+  rotSpeed: 8
   jumpPower: 5
   attackDelayTime: 3
+  attackDelayTimer: 0
   defenceDelayTime: 3
+  defenceDelayTimer: 0
   maxhp: 30
   cameraFollowTransform: {fileID: 497813406473095668}
   playerModel: {fileID: 0}
   isDefence: 0
+  isDefenceAttack: 0
 --- !u!114 &4453299691948596935
 MonoBehaviour:
   m_ObjectHideFlags: 0

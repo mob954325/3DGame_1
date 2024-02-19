@@ -10,6 +10,10 @@ public class HSEnemy : MonoBehaviour
     /// 공격시 실행하는 델리게이트
     /// </summary>
     Action onAttack;
+    /// <summary>
+    /// 공격 애니메이션이 종료되면 실행되는 델리게이트
+    /// </summary>
+    Action onAttackEnd;
 
     // Components
     Player player;
@@ -41,7 +45,7 @@ public class HSEnemy : MonoBehaviour
         set
         {
             hp = value;
-            Debug.Log($"적의 체력이 [{hp}]만큼 남았습니다");
+            //Debug.Log($"적의 체력이 [{hp}]만큼 남았습니다");
 
             if (hp <= 0)
             {
@@ -62,7 +66,7 @@ public class HSEnemy : MonoBehaviour
         set
         {
             toughness = value;
-            Debug.Log($"남은 강인성 : [{toughness}]");
+            //Debug.Log($"남은 강인성 : [{toughness}]");
             animator.SetBool(isFaintToHash, isFaint);
 
             if(toughness <= 0)
@@ -126,7 +130,9 @@ public class HSEnemy : MonoBehaviour
         HP = maxHp;
         Toughness = maxToughness;
 
+        // delegate
         onAttack += weapon.ChangeColliderEnableState;
+        onAttackEnd += weapon.ChangeIsDefencedState;
     }
 
     void FixedUpdate()
@@ -213,6 +219,7 @@ public class HSEnemy : MonoBehaviour
         yield return new WaitForSeconds(attackAnimTime);
 
         onAttack?.Invoke(); // 무기 콜라이더 비활성화
+        onAttackEnd?.Invoke(); // isDefence 비활성화
 
         // 뒤로 물러나기
         StepBackTime = UnityEngine.Random.Range(1, attackDelay - attackAnimTime); // 뒤로 물러가는 랜덤 시간
@@ -227,6 +234,7 @@ public class HSEnemy : MonoBehaviour
 
         // 공격 딜레이 끝
         IsAttack = false;
+
     }
 
     /// <summary>
@@ -248,7 +256,7 @@ public class HSEnemy : MonoBehaviour
     }
 
     /// <summary>
-    /// 플레이어한테 방어를 당하면 실항하는 함수
+    /// 플레이어한테 방패 밀치기를 당하면 실항하는 함수
     /// </summary>
     public void CheckDefenced()
     {
@@ -256,12 +264,12 @@ public class HSEnemy : MonoBehaviour
             return;
 
         Debug.Log("적이 방어 당함");
-        //StopCoroutine(Attack());
 
         // 피격 모션 실행
         animator.SetTrigger(DamagedToHash);
-        
-        if(canToughnessChange)
+        onAttack?.Invoke(); // 무기 콜라이더 비활성화
+
+        if (canToughnessChange)
         {
             Toughness -= 20; // 강인성 감소
             StartCoroutine(BlockedDelay());

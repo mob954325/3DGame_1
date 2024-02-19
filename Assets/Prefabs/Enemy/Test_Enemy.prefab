@@ -1415,8 +1415,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 320768755710174449}
-  - component: {fileID: 4293556269296280602}
   - component: {fileID: 2787317990507750265}
+  - component: {fileID: 4293556269296280602}
   - component: {fileID: 6444709283238192498}
   - component: {fileID: 5096047292214108486}
   m_Layer: 0
@@ -1443,6 +1443,26 @@ Transform:
   - {fileID: 3414644517273876272}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2787317990507750265
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6451189392315894782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc09fe3adfe3a914383e89f0f62724fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 2
+  rotateSpeed: 5
+  attackRange: 2.1
+  attackDelay: 2.5
+  ToughnessDelay: 2
+  StepBackTime: 0
+  maxHp: 10
+  maxToughness: 100
 --- !u!95 &4293556269296280602
 Animator:
   serializedVersion: 5
@@ -1464,26 +1484,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &2787317990507750265
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6451189392315894782}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc09fe3adfe3a914383e89f0f62724fd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 2
-  rotateSpeed: 5
-  attackRange: 2.3
-  attackDelay: 2.5
-  ToughnessDelay: 2
-  StepBackTime: 0
-  maxHp: 10
-  maxToughness: 100
 --- !u!54 &6444709283238192498
 Rigidbody:
   m_ObjectHideFlags: 0

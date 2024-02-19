@@ -53,7 +53,43 @@ public class Player : MonoBehaviour
     [Space(12f)]
     [Range(1.5f,3f)]
     public float attackDelayTime = 3.0f; // 공격 딜레이 시간
+    [SerializeField] float attackDelayTimer; // 공격 딜레이 타이머
+    /// <summary>
+    /// attackDelayTimer 프로퍼티
+    /// </summary>
+    float AttackDelayTimer
+    {
+        get => attackDelayTimer;
+        set
+        {
+            attackDelayTimer = value;
+
+            if(attackDelayTimer < 0f)
+            {
+                attackDelayTimer = 0f;
+            }
+        }
+    }
+
     public float defenceDelayTime = 3.0f; // 방어 딜레이 시간
+    [SerializeField] float defenceDelayTimer; // 방어 딜레이 타이머
+    /// <summary>
+    /// defenceDelayTimer 프로퍼티
+    /// </summary>
+    float DefenceDelayTimer
+    {
+        get => defenceDelayTimer;
+        set
+        {
+            defenceDelayTimer = value;
+
+            if (defenceDelayTimer < 0f)
+            {
+                defenceDelayTimer = 0f;
+            }
+        }
+    }
+    
 
     [Space(12f)]
     // Hp
@@ -102,7 +138,7 @@ public class Player : MonoBehaviour
     bool isDamaged = false;
     public bool isDefence = false; // 플레이어가 방어를 하는지 확인하는 bool
     bool isLockOn = false; // 플레이어가 락온을 활성화 했는지 확인하는 bool
-    bool isDefenceAttack = false; // 플레이어가 방패밀치기를 했는지 확인하는 bool
+    public bool isDefenceAttack = false; // 플레이어가 방패밀치기를 했는지 확인하는 bool
     float checkEnemyAngle = 0f;
 
     //[SerializeField] bool canInteraction = false; // 플레이어가 상호작용이 가능한지 확인하는 bool
@@ -185,13 +221,19 @@ public class Player : MonoBehaviour
         actions.Player.Disable();
     }
 
+    void Update()
+    {
+        // Timer
+        DefenceDelayTimer -= Time.deltaTime;
+        AttackDelayTimer -= Time.deltaTime;
+    }
+
     void FixedUpdate()
     {
-        Debug.Log(isDefenceAttack);
         playerMove();
         GetPlayerMoveInput();
         PlayerRotate();
-        rotateCamera();
+        RotateCamera();
         PlayAnimMove();
 
         // 카메라 락온
@@ -216,7 +258,7 @@ public class Player : MonoBehaviour
             {
                 OnParrying?.Invoke(); // 패링 델리게이트 실행 
             }
-            if (!isDamaged && !isDefence) // 피격당할 시
+            if (!isDamaged && !isDefence) // 피격당할 시, 방패를 안들었을 때, 방패 밀치기를 실행하지 않았을 때
             {
                 animator.SetTrigger(damagedToHash);
                 StartCoroutine(HitDelay());
@@ -269,7 +311,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    void rotateCamera()
+    void RotateCamera()
     {
         if(isLockOn)
             return;
@@ -313,7 +355,7 @@ public class Player : MonoBehaviour
     /// </summary>
     void PlayerRotate()
     {
-        if (isDefence)
+        if (isDefence || isAttack)
             return;
 
         Vector3 rotDirection = Vector3.zero;
@@ -366,19 +408,24 @@ public class Player : MonoBehaviour
 
     private void OnAttackInput(InputAction.CallbackContext context)
     {
-        if(context.performed)
+        if(context.performed && !isAttack
+        && !isDefence && !isDefenceAttack)// 방어 중이 아닐 때, 방패 밀치기를 하지 않을 때
         {
-            if(!isAttack)
+            if (AttackDelayTimer > 0f)
             {
-                moveSpeed = 0f;
-                animator.SetTrigger(attackToHash);
-                StartCoroutine(AttackDelay());
+                Debug.Log($"공격 쿨타임이 [{AttackDelayTimer}] 남았습니다 !!!!");
+                return;
             }
+
+            moveSpeed = 0f; // 움직일 수 없다.
+            animator.SetTrigger(attackToHash); // 애니메이션 시작
+            StartCoroutine(AttackDelay()); 
         }
     }
 
     IEnumerator AttackDelay()
     {
+        AttackDelayTimer = attackDelayTime; // 공격 쿨타임
         isAttack = true;
         OnAttack?.Invoke();
 
@@ -394,15 +441,28 @@ public class Player : MonoBehaviour
     // Defence
     private void OnDefenceInput(InputAction.CallbackContext context)
     {
-        if (context.performed && !isDefence)
+
+        if (context.performed && !isDefence
+            && !isAttack) // 공격하는 중이 아닐때
         {
-            // Set animator paramaters
-            animator.SetTrigger(ActiveDefenceToHash); // 방패 들기 트리거
-            animator.SetBool(defenceToHash, true); // 방패 밀치기 준비
+            if (DefenceDelayTimer > 0f) // 쿨타임
+            {
+                Debug.Log($"방어 쿨타임이 [{DefenceDelayTimer}] 남았습니다 !!!!");
+                return;
+            }
+            else
+            {
+                DefenceDelayTimer = defenceDelayTime; // 쿨타임
 
-            OnDefence?.Invoke(); // 방패 콜라이더 활성화
+                // Set animator paramaters
+                animator.SetTrigger(ActiveDefenceToHash); // 방패 들기 트리거
+                animator.SetBool(defenceToHash, true); // 방패 밀치기 준비
 
-            isDefence = true; // 방어를 할 수 있다
+                OnDefence?.Invoke(); // 방패 콜라이더 활성화
+
+                isDefence = true; // 방어를 할 수 있다
+            }
+
         }
         if (context.canceled)
         {
@@ -420,13 +480,13 @@ public class Player : MonoBehaviour
         animator.SetBool(defenceToHash, false);
 
         isDefence = false; // 방패 밀치기 애니메이션 시작
-        float defenceAnimTime = GetAnimClipLength("Player_Defence_Attack");
-        Debug.Log(defenceAnimTime);
+        float defenceAnimTime = GetAnimClipLength("Player_Defence_Attack"); // 0.9s
+
         isDefenceAttack = true;
         yield return new WaitForSeconds(defenceAnimTime);
 
-        isDefenceAttack = false;
         OnDefence?.Invoke(); // 방패 콜라이더 비활성화
+        isDefenceAttack = false;
     }
 
     private void OnLockCameraInput(InputAction.CallbackContext context)
