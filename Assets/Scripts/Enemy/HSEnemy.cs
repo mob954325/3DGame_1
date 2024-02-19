@@ -117,6 +117,9 @@ public class HSEnemy : MonoBehaviour
     bool isAttackBlocked => weapon.CheckIsDefenced(); // 공격이 막혔는지 확인하는 변수
     bool canToughnessChange = true; // 강인성이 감소 될 수 있는지 확인하는 bool 값 (true : 강인성 감소 가능 , false : 강인성 감소 불가능)
 
+    // coroutine
+    private IEnumerator attackCoroutine; // attack 코루틴 함수를 저장하는 IEnumerator
+
 
     void Awake()
     {
@@ -131,8 +134,11 @@ public class HSEnemy : MonoBehaviour
         Toughness = maxToughness;
 
         // delegate
-        onAttack += weapon.ChangeColliderEnableState;
-        onAttackEnd += weapon.ChangeIsDefencedState;
+        onAttack += weapon.ChangeColliderEnableState; // 콜라이더 반전
+        onAttackEnd += weapon.ChangeIsDefencedState; // isDefence 반전
+
+        // coroutine
+        attackCoroutine = Attack();
     }
 
     void FixedUpdate()
@@ -176,7 +182,7 @@ public class HSEnemy : MonoBehaviour
         {
             if (!IsAttack)
             {
-                StopCoroutine(Attack());
+                //StopCoroutine(attackCoroutine);
                 StartCoroutine(Attack()); // 공격 코루틴 시작
             }
         }
@@ -207,6 +213,9 @@ public class HSEnemy : MonoBehaviour
     /// <returns></returns>
     IEnumerator Attack()
     {
+        // onAttackEnd?.Invoke(); // isDefence 비활성화
+        // onAttack?.Invoke(); // 무기 콜라이더 비활성화
+
         speed = 0f;
         // 공격 애니메이션 실행
         animator.SetTrigger(AttackToHash); // 공격 애니메이션 플레이
@@ -218,9 +227,8 @@ public class HSEnemy : MonoBehaviour
 
         yield return new WaitForSeconds(attackAnimTime);
 
-        onAttack?.Invoke(); // 무기 콜라이더 비활성화
-        onAttackEnd?.Invoke(); // isDefence 비활성화
-
+        onAttack?.Invoke(); // 무기 콜라이더 비활성화  
+       
         // 뒤로 물러나기
         StepBackTime = UnityEngine.Random.Range(1, attackDelay - attackAnimTime); // 뒤로 물러가는 랜덤 시간
         yield return new WaitForSeconds(1f);
@@ -234,7 +242,6 @@ public class HSEnemy : MonoBehaviour
 
         // 공격 딜레이 끝
         IsAttack = false;
-
     }
 
     /// <summary>
@@ -263,14 +270,14 @@ public class HSEnemy : MonoBehaviour
         if (!isAttackBlocked)
             return;
 
-        Debug.Log("적이 방어 당함");
-
-        // 피격 모션 실행
-        animator.SetTrigger(DamagedToHash);
-        onAttack?.Invoke(); // 무기 콜라이더 비활성화
+        animator.SetTrigger(DamagedToHash); // 피격 모션 실행
 
         if (canToughnessChange)
         {
+            // 무기 콜라이더 비활성화 (2번 반전)
+            onAttack?.Invoke();
+            onAttack?.Invoke();
+
             Toughness -= 20; // 강인성 감소
             StartCoroutine(BlockedDelay());
         }
@@ -279,7 +286,6 @@ public class HSEnemy : MonoBehaviour
     IEnumerator BlockedDelay()
     {
         canToughnessChange = false;
-        //weapon.ChangeIsDefencedState(); // weapon.isDefenced bool 값 변경
 
         yield return new WaitForSeconds(ToughnessDelay);
 

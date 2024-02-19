@@ -256,8 +256,9 @@ public class Player : MonoBehaviour
         {
             if(isDefenceAttack) // 공격에 닿았을때 방패 밀치기를 수행하면 실행
             {
-                OnParrying?.Invoke(); // 패링 델리게이트 실행 
+                OnParrying?.Invoke(); // 패링 델리게이트 실행 ( 적이 공격한 순간인지 체크 )
             }
+
             if (!isDamaged && !isDefence) // 피격당할 시, 방패를 안들었을 때, 방패 밀치기를 실행하지 않았을 때
             {
                 animator.SetTrigger(damagedToHash);
@@ -446,25 +447,20 @@ public class Player : MonoBehaviour
             && !isAttack) // 공격하는 중이 아닐때
         {
             if (DefenceDelayTimer > 0f) // 쿨타임
-            {
-                Debug.Log($"방어 쿨타임이 [{DefenceDelayTimer}] 남았습니다 !!!!");
                 return;
-            }
-            else
-            {
-                DefenceDelayTimer = defenceDelayTime; // 쿨타임
 
-                // Set animator paramaters
-                animator.SetTrigger(ActiveDefenceToHash); // 방패 들기 트리거
-                animator.SetBool(defenceToHash, true); // 방패 밀치기 준비
+            DefenceDelayTimer = defenceDelayTime; // 쿨타임
 
-                OnDefence?.Invoke(); // 방패 콜라이더 활성화
+            // Set animator paramaters
+            animator.SetTrigger(ActiveDefenceToHash); // 방패 들기 트리거
+            animator.SetBool(defenceToHash, true); // 방패 밀치기 준비
 
-                isDefence = true; // 방어를 할 수 있다
-            }
+            OnDefence?.Invoke(); // 방패 콜라이더 활성화
+
+            isDefence = true; // 방어를 할 수 있다
 
         }
-        if (context.canceled)
+        if (context.canceled && isDefence)
         {
             animator.SetBool(defenceToHash, false); // 방패 밀치기 준비
             StartCoroutine(AfterDefence());

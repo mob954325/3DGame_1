@@ -498,7 +498,7 @@ MonoBehaviour:
   jumpPower: 5
   attackDelayTime: 3
   attackDelayTimer: 0
-  defenceDelayTime: 3
+  defenceDelayTime: 1
   defenceDelayTimer: 0
   maxhp: 30
   cameraFollowTransform: {fileID: 497813406473095668}

@@ -18,6 +18,12 @@ public class WeaponControl : MonoBehaviour
         coll.enabled = false;
     }
 
+    void FixedUpdate()
+    {
+        if (!coll.enabled) // 콜라이더가 비활성화 되면 조건 비활성화
+            isDefenced = false;
+    }
+
     // 방패에 닿았는지 체크
     void OnTriggerEnter(Collider other)
     {
@@ -26,22 +32,6 @@ public class WeaponControl : MonoBehaviour
             isDefenced = true;
         }
     }
-
-    void OnTriggerStay(Collider other)
-    {
-        if (other.CompareTag("Shield"))
-        {
-            isDefenced = true;
-        }
-    }
-
-    //void OnTriggerExit(Collider other)
-    //{
-    //    if (other.CompareTag("Shield"))
-    //    {
-    //        isDefenced = false;
-    //    }
-    //}
 
     /// <summary>
     /// 무기 콜라이더를 활성화, 비활성화 하는 함수 (실행하면 bool값이 전환됨, 초기값: false)
