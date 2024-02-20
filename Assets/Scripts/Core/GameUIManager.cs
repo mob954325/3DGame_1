@@ -13,7 +13,7 @@ public class GameUIManager : Singleton<GameUIManager>
     EnemyBar enemyBar;
 
     [Header("Panels")]
-    [SerializeField]ResultPanel resultPanel;
+    ResultPanel resultPanel;
     [HideInInspector]public UI_Info info;
     [HideInInspector]public bool isPlayerInteraction = false;
 
@@ -32,7 +32,7 @@ public class GameUIManager : Singleton<GameUIManager>
     /// </summary>
     public void ShowResult()
     {
-        resultPanel.SetResultText(); // 정보저장
         resultPanel.Show(); // 보여주기
+        resultPanel.SetResultText(); // 정보저장
     }
 }

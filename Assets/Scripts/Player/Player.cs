@@ -226,6 +226,8 @@ public class Player : MonoBehaviour
         // Timer
         DefenceDelayTimer -= Time.deltaTime;
         AttackDelayTimer -= Time.deltaTime;
+
+        RotateCamera();
     }
 
     void FixedUpdate()
@@ -233,7 +235,7 @@ public class Player : MonoBehaviour
         playerMove();
         GetPlayerMoveInput();
         PlayerRotate();
-        RotateCamera();
+        // rotatecamera
         PlayAnimMove();
 
         // 카메라 락온
@@ -249,23 +251,35 @@ public class Player : MonoBehaviour
         }
     }
 
+    void OnCollisionStay(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Wall"))
+        {
+            rigid.position = transform.position;
+        }
+    }
+
     void OnTriggerEnter(Collider other)
     {
         // 적 공격 감지
         if (other.CompareTag("EnemyAttack"))
         {
+            if (isDamaged)
+                return;
+
             if(isDefenceAttack) // 공격에 닿았을때 방패 밀치기를 수행하면 실행
             {
-                StartCoroutine(HitDelay()); // 일시적으로 무적 부여 (콜라이더가 언제 종료될지 몰라서)
+                StartCoroutine(HitDelay()); // 일시적으로 무적 부여 ( 콜라이더가 언제 종료될지 몰라서)
                 OnParrying?.Invoke(); // 패링 델리게이트 실행 ( 적이 공격한 순간인지 체크 )
             }
 
-            if (!isDamaged && !isDefence) // 피격당할 시, 방패를 안들었을 때, 방패 밀치기를 실행하지 않았을 때
+            if (!isDefence) // 피격당할 시, 방패를 안들었을 때, 방패 밀치기를 실행하지 않았을 때
             {
                 animator.SetTrigger(damagedToHash);
                 HP--;
                 StartCoroutine(HitDelay());
             }
+
 
         }
 

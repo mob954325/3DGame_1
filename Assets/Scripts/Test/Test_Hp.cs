@@ -7,7 +7,6 @@ public class Test_Hp : TestInput
 {
     public Player player;
     public HSEnemy enemy;
-    public GameObject sword;
 
     protected override void OnTest1(InputAction.CallbackContext context)
     {
@@ -21,7 +20,6 @@ public class Test_Hp : TestInput
     {
         if (context.performed)
         {
-            GameUIManager.Instance.ShowResult();
         }
     }
     protected override void OnTest3(InputAction.CallbackContext context)

@@ -16,11 +16,15 @@ public class GameManager : Singleton<GameManager>
     /// </summary>
     public float timer = 0.0f;
 
-
-    protected override void OnPreInitialize()
+    protected override void OnInitialize()
     {
         player = FindAnyObjectByType<Player>();
         timer = 0.0f;
+    }
+
+    void Start()
+    {
+        isBattle = true;
     }
 
     void Update()

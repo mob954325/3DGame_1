@@ -45,6 +45,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 0}
-  enemy: {fileID: 0}
-  enemyHpBar: {fileID: 0}
-  playerHpBar: {fileID: 0}
+  isBattle: 0
+  timer: 0

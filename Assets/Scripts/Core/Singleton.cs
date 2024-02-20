@@ -28,7 +28,7 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
                 Debug.LogWarning("ΩÃ±€≈Ê¿∫ ªË¡¶ ¡ﬂ¿‘¥œ¥Ÿ");
                 return null;
             }
-            if(instance = null)
+            if(instance == null)
             {
                 T singleton = FindAnyObjectByType<T>(); // ΩÃ±€≈Ê ø¿∫Í¡ß∆Æ √£±‚
 
@@ -38,7 +38,7 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
                     obj.name = "Singleton";
                     singleton = obj.AddComponent<T>();
                 }
-                instance = singleton; 
+                instance = singleton;
                 DontDestroyOnLoad(instance.gameObject);
             }
             return instance;
