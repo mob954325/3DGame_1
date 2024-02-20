@@ -12,7 +12,8 @@ public class GameUIManager : Singleton<GameUIManager>
     PlayerBar playerBar;
     EnemyBar enemyBar;
 
-    [Header("Info UI")]
+    [Header("Panels")]
+    [SerializeField]ResultPanel resultPanel;
     [HideInInspector]public UI_Info info;
     [HideInInspector]public bool isPlayerInteraction = false;
 
@@ -23,5 +24,15 @@ public class GameUIManager : Singleton<GameUIManager>
         enemyBar = FindAnyObjectByType<EnemyBar>();
 
         info = FindAnyObjectByType<UI_Info>();
+        resultPanel = FindAnyObjectByType<ResultPanel>();
+    }
+
+    /// <summary>
+    /// 결과 패널을 보여주는 함수
+    /// </summary>
+    public void ShowResult()
+    {
+        resultPanel.SetResultText(); // 정보저장
+        resultPanel.Show(); // 보여주기
     }
 }

@@ -13,7 +13,7 @@ public class Test_Hp : TestInput
     {
         if(context.performed)
         {
-            //
+            enemy.HP -= 1;
         }
     }
 
@@ -21,7 +21,7 @@ public class Test_Hp : TestInput
     {
         if (context.performed)
         {
-            //
+            GameUIManager.Instance.ShowResult();
         }
     }
     protected override void OnTest3(InputAction.CallbackContext context)

@@ -135,7 +135,7 @@ public class Player : MonoBehaviour
     // player flag
     bool isJump = false;
     bool isAttack = false;
-    bool isDamaged = false;
+    [SerializeField]bool isDamaged = false;
     public bool isDefence = false; // 플레이어가 방어를 하는지 확인하는 bool
     bool isLockOn = false; // 플레이어가 락온을 활성화 했는지 확인하는 bool
     public bool isDefenceAttack = false; // 플레이어가 방패밀치기를 했는지 확인하는 bool
@@ -256,12 +256,14 @@ public class Player : MonoBehaviour
         {
             if(isDefenceAttack) // 공격에 닿았을때 방패 밀치기를 수행하면 실행
             {
+                StartCoroutine(HitDelay()); // 일시적으로 무적 부여 (콜라이더가 언제 종료될지 몰라서)
                 OnParrying?.Invoke(); // 패링 델리게이트 실행 ( 적이 공격한 순간인지 체크 )
             }
 
             if (!isDamaged && !isDefence) // 피격당할 시, 방패를 안들었을 때, 방패 밀치기를 실행하지 않았을 때
             {
                 animator.SetTrigger(damagedToHash);
+                HP--;
                 StartCoroutine(HitDelay());
             }
 
@@ -496,8 +498,6 @@ public class Player : MonoBehaviour
     IEnumerator HitDelay()
     {
         isDamaged = true;
-
-        HP--;
         yield return new WaitForSeconds(2f);
         isDamaged = false;
     }
@@ -508,6 +508,8 @@ public class Player : MonoBehaviour
     void Die()
     {
         animator.SetTrigger(DieToHash);
+
+        // 점수판 보여주는 델리게이트 실행
     }
 
     /// <summary>

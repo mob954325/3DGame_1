@@ -10,10 +10,6 @@ public class HSEnemy : MonoBehaviour
     /// 공격시 실행하는 델리게이트
     /// </summary>
     Action onAttack;
-    /// <summary>
-    /// 공격 애니메이션이 종료되면 실행되는 델리게이트
-    /// </summary>
-    Action onAttackEnd;
 
     // Components
     Player player;
@@ -135,7 +131,6 @@ public class HSEnemy : MonoBehaviour
 
         // delegate
         onAttack += weapon.ChangeColliderEnableState; // 콜라이더 반전
-        onAttackEnd += weapon.ChangeIsDefencedState; // isDefence 반전
 
         // coroutine
         attackCoroutine = Attack();
@@ -213,9 +208,6 @@ public class HSEnemy : MonoBehaviour
     /// <returns></returns>
     IEnumerator Attack()
     {
-        // onAttackEnd?.Invoke(); // isDefence 비활성화
-        // onAttack?.Invoke(); // 무기 콜라이더 비활성화
-
         speed = 0f;
         // 공격 애니메이션 실행
         animator.SetTrigger(AttackToHash); // 공격 애니메이션 플레이
@@ -259,7 +251,9 @@ public class HSEnemy : MonoBehaviour
     /// </summary>
     void Die()
     {
-        animator.SetTrigger(DieToHash);
+        animator.SetTrigger(DieToHash); // 애니메이션 실행
+        GameManager.Instance.BattleEnd();
+        GameUIManager.Instance.ShowResult();
     }
 
     /// <summary>
@@ -270,13 +264,14 @@ public class HSEnemy : MonoBehaviour
         if (!isAttackBlocked)
             return;
 
+        //// 무기 콜라이더 비활성화
+        //onAttack?.Invoke();
+        //onAttack?.Invoke();
+
         animator.SetTrigger(DamagedToHash); // 피격 모션 실행
 
         if (canToughnessChange)
         {
-            // 무기 콜라이더 비활성화 (2번 반전)
-            onAttack?.Invoke();
-            onAttack?.Invoke();
 
             Toughness -= 20; // 강인성 감소
             StartCoroutine(BlockedDelay());

@@ -20,10 +20,22 @@ public class GameManager : Singleton<GameManager>
     protected override void OnPreInitialize()
     {
         player = FindAnyObjectByType<Player>();
+        timer = 0.0f;
     }
 
     void Update()
     {
-        timer += Time.deltaTime;
+        if(isBattle)
+            timer += Time.deltaTime;
+    }
+
+    public void BattleBegin()
+    {
+        isBattle = true;
+    }
+
+    public void BattleEnd()
+    {
+        isBattle = false;
     }
 }
