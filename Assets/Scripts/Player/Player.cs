@@ -262,25 +262,21 @@ public class Player : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         // 적 공격 감지
-        if (other.CompareTag("EnemyAttack"))
+        if (other.CompareTag("EnemyAttack") && !isDamaged)
         {
-            if (isDamaged)
-                return;
-
             if(isDefenceAttack) // 공격에 닿았을때 방패 밀치기를 수행하면 실행
             {
-                StartCoroutine(HitDelay()); // 일시적으로 무적 부여 ( 콜라이더가 언제 종료될지 몰라서)
+                //StartCoroutine(HitDelay()); // 일시적으로 무적 부여 ( 콜라이더가 언제 종료될지 몰라서)
                 OnParrying?.Invoke(); // 패링 델리게이트 실행 ( 적이 공격한 순간인지 체크 )
             }
 
             if (!isDefence) // 피격당할 시, 방패를 안들었을 때, 방패 밀치기를 실행하지 않았을 때
             {
-                animator.SetTrigger(damagedToHash);
                 HP--;
-                StartCoroutine(HitDelay());
+                animator.SetTrigger(damagedToHash);
             }
 
-
+            StartCoroutine(HitDelay());
         }
 
         // check interaction Object

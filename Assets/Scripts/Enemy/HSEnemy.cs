@@ -177,7 +177,7 @@ public class HSEnemy : MonoBehaviour
         {
             if (!IsAttack)
             {
-                //StopCoroutine(attackCoroutine);
+                StopCoroutine(Attack());
                 StartCoroutine(Attack()); // 공격 코루틴 시작
             }
         }
@@ -217,7 +217,7 @@ public class HSEnemy : MonoBehaviour
 
         attackAnimTime = GetAnimClipLength("1HSEnemy_Attack"); // 공격 애니메이션 시작
 
-        yield return new WaitForSeconds(attackAnimTime);
+        yield return new WaitForSeconds(attackAnimTime - 0.1f);
 
         onAttack?.Invoke(); // 무기 콜라이더 비활성화  
        
