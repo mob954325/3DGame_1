@@ -20,6 +20,9 @@ public class WeaponControl : MonoBehaviour
 
     void FixedUpdate()
     {
+        Debug.Log($"콜라이더 : {coll.enabled}");
+        Debug.Log($"불값 {isEnable}");
+
         if (!coll.enabled) // 콜라이더가 비활성화 되면 조건 비활성화
             isDefenced = false;
     }
