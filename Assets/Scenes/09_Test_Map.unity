@@ -610,6 +610,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Test_Enemy
       objectReference: {fileID: 0}
+    - target: {fileID: 6451189392315894782, guid: 57781714d65552741bb6a0708783d137, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

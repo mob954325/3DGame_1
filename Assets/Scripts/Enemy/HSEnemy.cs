@@ -113,10 +113,6 @@ public class HSEnemy : MonoBehaviour
     bool isAttackBlocked => weapon.CheckIsDefenced(); // 공격이 막혔는지 확인하는 변수
     bool canToughnessChange = true; // 강인성이 감소 될 수 있는지 확인하는 bool 값 (true : 강인성 감소 가능 , false : 강인성 감소 불가능)
 
-    // coroutine
-    private IEnumerator attackCoroutine; // attack 코루틴 함수를 저장하는 IEnumerator
-
-
     void Awake()
     {
         player = FindAnyObjectByType<Player>();
@@ -131,9 +127,6 @@ public class HSEnemy : MonoBehaviour
 
         // delegate
         onAttack += weapon.ChangeColliderEnableState; // 콜라이더 반전
-
-        // coroutine
-        attackCoroutine = Attack();
     }
 
     void FixedUpdate()
