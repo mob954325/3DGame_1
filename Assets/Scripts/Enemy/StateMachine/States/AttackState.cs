@@ -2,25 +2,31 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 플레이어를 공격하는 상태
+/// </summary>
 public class AttackState : EnemyStateBase
 {
     public ChasingState chasingState;
 
-    public bool isAttack => enemy.isAttack;
+    public bool isAttack = true;
 
     public override EnemyStateBase EnterCurrentState()
     {
-        throw new System.NotImplementedException();
+        isAttack = true;
+        enemy.speed = 0f;
+
+        StartCoroutine(AttackCombo()); // 공격 실행
+        return this;
     }
 
     public override EnemyStateBase ExitCurrentState()
     {
-        throw new System.NotImplementedException();
+        return this;
     }
 
     public override EnemyStateBase RunCurrentState()
     {
-        StartCoroutine(AttackCombo());
         if(!isAttack)
         {
             enemy.speed = enemy.baseSpeed;
@@ -32,6 +38,6 @@ public class AttackState : EnemyStateBase
     IEnumerator AttackCombo()
     {
         yield return new WaitForSeconds(2f);
-        enemy.isAttack = false;
+        isAttack = false;
     }
 }

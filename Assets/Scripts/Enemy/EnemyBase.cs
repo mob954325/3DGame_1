@@ -3,24 +3,40 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/// <summary>
+/// 적 프로퍼티 클래스
+/// </summary>
 public class EnemyBase : MonoBehaviour
 {
-    // Delegate
-    /// <summary>
-    /// 공격시 실행하는 델리게이트
-    /// </summary>
-    Action onAttack;
-
     // Components
-    public Player player;
-    public WeaponControl weapon;
-    public Rigidbody rigid;
-    public Animator animator;
+    Player player;
+    WeaponControl weapon;
+    Rigidbody rigid;
+    Animator animator;
+    public  EnemyStateBase[] enemyStates;
+
+    // 프로퍼티
+    public Player Player => player;
+    public WeaponControl Weapon => weapon;
+    public Rigidbody Rigid => rigid;
+    public Animator Anim => animator;
+
+    public enum State
+    {
+        Idle = 0,
+        Chasing,
+        Attack,
+        Faint,
+        Death
+    }
+
+    public State states;
+
 
     // Values
     public Vector3 direction = Vector3.zero;
-    float lookAngle;
-    float attackAnimTime;
+    public float lookAngle;
 
     // Enemy stats
     [Header("Enemy Stats")]
@@ -82,52 +98,52 @@ public class EnemyBase : MonoBehaviour
     // bool
     public bool isAttack;
 
+    // Hashes
+    public readonly int SpeedToHash = Animator.StringToHash("Speed");
+    public readonly int AttackToHash = Animator.StringToHash("Attack");
+    public readonly int DamagedToHash = Animator.StringToHash("Damaged");
+    public readonly int DieToHash = Animator.StringToHash("Die");
+    public readonly int faintToHash = Animator.StringToHash("Faint"); // 기절 trigger 
+    public readonly int isFaintToHash = Animator.StringToHash("isFaint"); // 기절이 끝나기 전까지 대기하게 하는 animator bool값
+
     void Awake()
     {
         rigid = GetComponent<Rigidbody>();
         player = FindAnyObjectByType<Player>();
         animator = GetComponent<Animator>();
         weapon = GetComponentInChildren<WeaponControl>();
-    }
 
-    void FixedUpdate()
-    {
-        direction = player.transform.position - transform.position; // 플레이어 방향 백터
-        //animator.SetFloat(SpeedToHash, speed);
-
-        MoveToPlayer();
-        RotateToPlayer();
-    }
-
-    /// <summary>
-    /// 플레이어한테 이동하는 함수 ( AttackRange 내에 도달하면 공격 )
-    /// </summary>
-    void MoveToPlayer()
-    {
-        rigid.MovePosition(rigid.position + Time.fixedDeltaTime * direction.normalized * speed);
-
-        if (direction.magnitude <= attackRange) // 플레이어 근처에 도달
+        enemyStates = new EnemyStateBase[transform.childCount - 2]; // stat 배열 초기화
+        for(int i = 0; i < enemyStates.Length; i++)
         {
-            isAttack = true;
+            enemyStates[i] = transform.GetChild(i).gameObject.GetComponent<EnemyStateBase>();
         }
     }
 
+
     /// <summary>
-    /// 플레이어를 향해 회전하는 함수
+    /// 상태를 받는 함수
     /// </summary>
-    void RotateToPlayer()
+    /// <param name="state">받을 상태 입력</param>
+    public void SetEnemyState(State state)
     {
-        Vector3 rotDirection = Vector3.zero;
-        rotDirection.x = direction.x;
-        rotDirection.z = direction.z;
-        rotDirection.Normalize();
-
-
-        if (rotDirection.magnitude > 0.01f)
+        switch(state)
         {
-            lookAngle = Mathf.Atan2(rotDirection.x, rotDirection.z) * Mathf.Rad2Deg; // 회전할 방향
+            case State.Idle:
+                enemyStates[(int)State.Idle].GetComponent<IdleState>();
+                break;
+
+            case State.Chasing:
+                break;
+
+            case State.Attack:
+                break;
+
+            case State.Faint:
+                break;
+
+            case State.Death:
+                break;
         }
-        float angle = Mathf.LerpAngle(transform.localRotation.eulerAngles.y, lookAngle, rotateSpeed * Time.fixedDeltaTime);
-        transform.localRotation = Quaternion.Euler(0, angle, 0); // rotate Player model
     }
 }

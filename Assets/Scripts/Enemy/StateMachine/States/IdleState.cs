@@ -1,7 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
+/// <summary>
+/// 게임 시작전 준비 시간
+/// </summary>
 public class IdleState : EnemyStateBase
 {
     [SerializeField] ChasingState chasingState;
@@ -16,14 +20,20 @@ public class IdleState : EnemyStateBase
         chasingState = FindAnyObjectByType<ChasingState>();
     }
 
+    public override EnemyStateBase EnterCurrentState()
+    {
+        enemy.speed = 0f;
+
+        return this;
+    }
+
     public override EnemyStateBase RunCurrentState()
     {
         timer += Time.deltaTime;
 
         if(timer >= changeTime)
         {
-            Debug.Log("idle에서 상태 변경");
-            ExitCurrentState();
+            Debug.Log("chasingState로 상태 변경");
 
             return chasingState;
         }
@@ -31,17 +41,8 @@ public class IdleState : EnemyStateBase
         return this;
     }
 
-    public override EnemyStateBase EnterCurrentState()
-    {
-        Debug.Log("Idle Enter");
-
-        return this;
-    }
-
     public override EnemyStateBase ExitCurrentState()
     {
-        Debug.Log("Idle exit");
-
         return this;
     }
 }

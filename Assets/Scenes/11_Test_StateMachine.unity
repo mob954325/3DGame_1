@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -566,11 +566,6 @@ MonoBehaviour:
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
   m_PresetInfoIsWorld: 0
---- !u!1 &405032711337857580 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4962950920653720697, guid: 1e3f19abd17d1984bb2f5e6d3bb79a55, type: 3}
-  m_PrefabInstance: {fileID: 8131983743219167832}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1050707097098493533
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -719,18 +714,6 @@ PrefabInstance:
     - target: {fileID: 3182105051976760139, guid: 49fc1a8f35fc4734cb9d6d3ded2bfead, type: 3}
       propertyPath: m_Name
       value: GameManager
-      objectReference: {fileID: 0}
-    - target: {fileID: 4613644597784643769, guid: 49fc1a8f35fc4734cb9d6d3ded2bfead, type: 3}
-      propertyPath: enemyHpBar
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4613644597784643769, guid: 49fc1a8f35fc4734cb9d6d3ded2bfead, type: 3}
-      propertyPath: playerHpBar
-      value: 
-      objectReference: {fileID: 405032711337857580}
-    - target: {fileID: 4613644597784643769, guid: 49fc1a8f35fc4734cb9d6d3ded2bfead, type: 3}
-      propertyPath: enemyToughnessBar
-      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
