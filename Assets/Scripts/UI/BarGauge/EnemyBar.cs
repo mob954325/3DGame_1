@@ -8,16 +8,19 @@ using UnityEngine.UI;
 /// </summary>
 public class EnemyBar : BaseGauge
 {
-    HSEnemy enemy;
+    // HSEnemy
+    EnemyBase enemy;
 
     Image currentEnemyHP;
     Image currentEnemyToughness;
 
     protected override void Init()
     {
-        enemy = FindAnyObjectByType<HSEnemy>(); // enemy 스크립트가 있는 오브젝트 찾기
+        enemy = FindAnyObjectByType<EnemyBase>(); // enemy 스크립트가 있는 오브젝트 찾기
         if(enemy == null)
         {
+            // 임시
+            enemy = FindAnyObjectByType<EnemyBase>(); // enemy 스크립트가 있는 오브젝트 찾기
             gameObject.SetActive(false); // 숨기기
         }
 
@@ -30,7 +33,7 @@ public class EnemyBar : BaseGauge
 
     protected override void UpdateUI()
     {
-        if(enemy.HP <= 0) // 적이 사망했거나 없으면
+        if(enemy.HP < 1) // 적이 사망했거나 없으면
         {
             gameObject.SetActive(false); // 숨기기
         }

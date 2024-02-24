@@ -2,15 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Toughness가 0이되면 실행되는 스크립트
+/// </summary>
 public class FaintState : EnemyStateBase
 {
-    public ChasingState chasingState;
-
     public bool isFaint = true;
+
+    float timer = 0;
 
     public override EnemyStateBase EnterCurrentState()
     {
-        throw new System.NotImplementedException();
+        timer = 0f;
+        isFaint = true;
+
+        enemy.Anim.SetTrigger(enemy.faintToHash); // 기절 애니메이션
+        enemy.Anim.SetBool(enemy.isFaintToHash, true); // 기절 bool 애니메이션
+
+        return this;
     }
 
     public override EnemyStateBase ExitCurrentState()
@@ -20,10 +29,17 @@ public class FaintState : EnemyStateBase
 
     public override EnemyStateBase RunCurrentState()
     {
-        Debug.Log("faint");
+        timer = Time.deltaTime;
+
+        if(timer > 2f)
+        {
+            isFaint = false;
+        }
+
         if(!isFaint)
         {
-            return chasingState;
+            enemy.Anim.SetBool(enemy.isFaintToHash, false); // 기절 bool 애니메이션
+            return enemy.SetEnemyState(EnemyBase.State.Chasing);
         }
 
         return this;

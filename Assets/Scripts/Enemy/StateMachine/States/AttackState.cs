@@ -7,16 +7,17 @@ using UnityEngine;
 /// </summary>
 public class AttackState : EnemyStateBase
 {
-    public ChasingState chasingState;
-
     public bool isAttack = true;
+    bool isBlock = false;
 
     public override EnemyStateBase EnterCurrentState()
     {
+        isBlock = false;
         isAttack = true;
         enemy.speed = 0f;
 
         StartCoroutine(AttackCombo()); // 공격 실행
+
         return this;
     }
 
@@ -27,17 +28,31 @@ public class AttackState : EnemyStateBase
 
     public override EnemyStateBase RunCurrentState()
     {
-        if(!isAttack)
+        if (enemy.isAttackBlocked && !isBlock)
         {
-            enemy.speed = enemy.baseSpeed;
-            return chasingState;
+            isBlock = true;
+            OnPlayerParrying();
+
+            if(enemy.Toughness == 0)
+                return enemy.SetEnemyState(EnemyBase.State.Faint);
         }
+
+        if (!isAttack)
+            return enemy.SetEnemyState(EnemyBase.State.Chasing);
+
         return this;
     }
 
     IEnumerator AttackCombo()
     {
+        enemy.Anim.SetTrigger(enemy.AttackToHash);
         yield return new WaitForSeconds(2f);
         isAttack = false;
+    }
+
+    void OnPlayerParrying()
+    {
+        enemy.Toughness -= 20;
+        enemy.Anim.SetTrigger(enemy.DamagedToHash);
     }
 }

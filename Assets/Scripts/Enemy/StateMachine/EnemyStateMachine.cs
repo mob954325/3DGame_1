@@ -31,7 +31,7 @@ public class EnemyStateMachine : MonoBehaviour
 
 
     /// <summary>
-    /// 해당 State에서 실행할 내용
+    /// 해당 State에서 실행할 내용 (상태를 변경할려면 이 함수에서 리턴해야함)
     /// </summary>
     private void RunStateMachine()
     {

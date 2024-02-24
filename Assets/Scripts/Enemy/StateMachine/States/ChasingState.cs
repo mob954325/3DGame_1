@@ -7,33 +7,51 @@ using UnityEngine;
 /// </summary>
 public class ChasingState : EnemyStateBase
 {
-    public AttackState attackState;
+    public bool isStepBack = true;
+    public float stepBackTimer = 0f;
 
     public override EnemyStateBase EnterCurrentState()
     {
         // 뒤로 물러나기
-        Debug.Log("chasing enter");
+        //Debug.Log("chasing enter");
+
+        isStepBack = true;
+
+        stepBackTimer = 0f;
         enemy.speed = enemy.baseSpeed;
         return this;
     }
 
-
-
     public override EnemyStateBase RunCurrentState()
     {
+        stepBackTimer += Time.deltaTime;
         enemy.direction = enemy.Player.transform.position - transform.position; // 플레이어 방향 백터
-        enemy.Anim.SetFloat(enemy.SpeedToHash, enemy.speed); // 이동 애니메이션
-        MoveToPlayer();
         RotateToPlayer();
-
-        if (enemy.direction.magnitude <= enemy.attackRange) // 플레이어 근처에 도달
+        
+        if(isStepBack)
         {
-            Debug.Log("Attack으로 전환");
-            return attackState;
+            if (stepBackTimer > 1.5f)
+                isStepBack = false;
+        
+            MoveToPlayer(enemy.baseSpeed * -1);
         }
+        else
+        {
+            // 애니메이션 자체에 이동이 들어있음
+            //enemy.Anim.SetFloat(enemy.SpeedToHash, enemy.speed); // 이동 애니메이션
 
+            MoveToPlayer(enemy.baseSpeed);
+
+            if (enemy.direction.magnitude < enemy.attackRange) // 플레이어 근처에 도달
+            {
+                Debug.Log("Attack으로 전환");
+
+                return enemy.SetEnemyState(EnemyBase.State.Attack);
+            }
+        }
         return this;
     }
+
     public override EnemyStateBase ExitCurrentState()
     {
         return this;
@@ -42,9 +60,10 @@ public class ChasingState : EnemyStateBase
     /// <summary>
     /// 플레이어한테 이동하는 함수
     /// </summary>
-    void MoveToPlayer()
+    void MoveToPlayer(float speed)
     {
-        enemy.Rigid.MovePosition(enemy.Rigid.position + Time.fixedDeltaTime * enemy.direction.normalized * enemy.speed);
+        enemy.speed = speed;
+        enemy.Rigid.MovePosition(enemy.Rigid.position + Time.fixedDeltaTime * enemy.direction.normalized * speed);
     }
 
     /// <summary>

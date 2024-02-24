@@ -42,10 +42,10 @@ public class WeaponControl : MonoBehaviour
         coll.enabled = isEnable;
     }
 
-    public void ChangeIsDefencedState()
-    {
-        isDefenced = !isDefenced;
-    }
+    //public void ChangeIsDefencedState()
+    //{
+    //    isDefenced = !isDefenced;
+    //}
 
     /// <summary>
     /// 공격이 방패에 막혔는지 여부를 반환하는 함수 (true : 막힘, false : 안막힘)

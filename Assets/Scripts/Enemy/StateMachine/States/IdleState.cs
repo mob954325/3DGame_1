@@ -8,17 +8,10 @@ using UnityEngine;
 /// </summary>
 public class IdleState : EnemyStateBase
 {
-    [SerializeField] ChasingState chasingState;
-
     [Tooltip("다음 상태(Chasing)로 전환될 때까지 대기 시간")]
     public float changeTime;
 
     public float timer;
-
-    void Awake()
-    {
-        chasingState = FindAnyObjectByType<ChasingState>();
-    }
 
     public override EnemyStateBase EnterCurrentState()
     {
@@ -35,7 +28,7 @@ public class IdleState : EnemyStateBase
         {
             Debug.Log("chasingState로 상태 변경");
 
-            return chasingState;
+            return enemy.SetEnemyState(EnemyBase.State.Chasing);
         }
 
         return this;
