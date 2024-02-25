@@ -8,7 +8,7 @@ using UnityEngine;
 public class ChasingState : EnemyStateBase
 {
     public bool isStepBack = true;
-    public float stepBackTimer = 0f;
+    public float stepBackTimer = 0f; // 24.02.25 - 뒤로 물러나는 타이밍
 
     public override EnemyStateBase EnterCurrentState()
     {
@@ -25,17 +25,20 @@ public class ChasingState : EnemyStateBase
     public override EnemyStateBase RunCurrentState()
     {
         stepBackTimer += Time.deltaTime;
-        enemy.direction = enemy.Player.transform.position - transform.position; // 플레이어 방향 백터
-        RotateToPlayer();
+        enemy.direction = enemy.Player.transform.position - enemy.transform.position; // 플레이어 방향 백터
+        enemy.Anim.SetFloat(enemy.SpeedToHash, enemy.speed);
         
         if(isStepBack)
         {
             if (stepBackTimer > 1.5f)
+            {
                 isStepBack = false;
+                stepBackTimer = 1.5f;
+            }
         
             MoveToPlayer(enemy.baseSpeed * -1);
         }
-        else
+        else if (!isStepBack)
         {
             // 애니메이션 자체에 이동이 들어있음
             //enemy.Anim.SetFloat(enemy.SpeedToHash, enemy.speed); // 이동 애니메이션
@@ -49,6 +52,8 @@ public class ChasingState : EnemyStateBase
                 return enemy.SetEnemyState(EnemyBase.State.Attack);
             }
         }
+
+        RotateToPlayer();
         return this;
     }
 

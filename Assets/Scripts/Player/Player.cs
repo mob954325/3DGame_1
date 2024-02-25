@@ -30,7 +30,7 @@ public class Player : MonoBehaviour
     PlayerInputActions actions;
     Animator animator;
     Rigidbody rigid;
-    HSEnemy enemy;
+    EnemyBase enemy;
     
     WeaponControl weapon;
     ShieldControl shield;
@@ -150,7 +150,7 @@ public class Player : MonoBehaviour
         actions = new PlayerInputActions();
         rigid = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
-        enemy = FindAnyObjectByType<HSEnemy>();
+        enemy = FindAnyObjectByType<EnemyBase>();
         weapon = GetComponentInChildren<WeaponControl>();
         shield = GetComponentInChildren<ShieldControl>();
         cameraFollowTransform = FindAnyObjectByType<FollowCamera>().transform;
@@ -163,7 +163,7 @@ public class Player : MonoBehaviour
         // 델리게이트
         OnAttack += weapon.ChangeColliderEnableState; 
         OnDefence += shield.ChangeColliderEnableState;
-        if(enemy != null) OnParrying += enemy.CheckDefenced;
+        //if(enemy != null) OnParrying += enemy.CheckDefenced;
     }
 
     void Start()
@@ -272,11 +272,13 @@ public class Player : MonoBehaviour
 
             if (!isDefence) // 피격당할 시, 방패를 안들었을 때, 방패 밀치기를 실행하지 않았을 때
             {
-                HP--;
                 animator.SetTrigger(damagedToHash);
+                HP--;
+                
+                rigid.AddForce(transform.position - enemy.transform.position * 10f, ForceMode.Impulse); // 24.02.25
             }
 
-            StartCoroutine(HitDelay());
+            //StartCoroutine(HitDelay());
         }
 
         // check interaction Object

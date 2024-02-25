@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 적 프로퍼티 클래스
+/// 적 베이스 클래스
 /// </summary>
 public class EnemyBase : MonoBehaviour
 {
@@ -12,7 +12,7 @@ public class EnemyBase : MonoBehaviour
     Action onAttack;
 
     // Components
-    Player player;
+    public Player player;
     WeaponControl weapon;
     Rigidbody rigid;
     Animator animator;
@@ -64,7 +64,7 @@ public class EnemyBase : MonoBehaviour
             if (hp <= 0)
             {
                 hp = 0;
-                //Die();
+                isDie = true;
             }
         }
     }
@@ -82,24 +82,25 @@ public class EnemyBase : MonoBehaviour
         {
             toughness = value;
             //Debug.Log($"남은 강인성 : [{toughness}]");
-            //animator.SetBool(isFaintToHash, isFaint);
 
+            // 기절
             if (toughness <= 0)
             {
                 toughness = 0;
                 speed = 0;
-
-                // 애니메이션 실행
-                //animator.SetTrigger(faintToHash);
-                //StartCoroutine(AfterFaint());
             }
         }
     }
 
     // bool
-    public bool isAttack;
     public bool isAttackBlocked => weapon.CheckIsDefenced(); // 공격이 막혔는지 확인하는 변수
 
+    private bool isDamaged = false;
+    public bool IsDamaged => isDamaged;
+    bool isDie = false;
+    public bool IsDie => isDie;
+
+    // 적이 공동으로 가져야할 애니메이션 파라미터
     // Hashes
     public readonly int SpeedToHash = Animator.StringToHash("Speed");
     public readonly int AttackToHash = Animator.StringToHash("Attack");
@@ -124,15 +125,33 @@ public class EnemyBase : MonoBehaviour
         onAttack += weapon.ChangeColliderEnableState;
 
         // states
-        enemyStates = new EnemyStateBase[transform.childCount - 2]; // stat 배열 초기화
+        enemyStates = new EnemyStateBase[5]; // stat 배열 초기화
         for(int i = 0; i < enemyStates.Length; i++)
         {
             enemyStates[i] = transform.GetChild(i).gameObject.GetComponent<EnemyStateBase>();
         }
     }
 
+    void OnTriggerEnter(Collider other)
+    {
+        if(other.CompareTag("PlayerAttack") && !IsDamaged) // 플레이어의 공격을 받았으면 데미지 받기
+        {
+            isDamaged = true;
+            Anim.SetTrigger(DamagedToHash);
+            HP--;
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if(other.CompareTag("PlayerAttack") && IsDamaged) // 공격에 벗어나면 피격 비활성화
+        {
+            isDamaged = false;  
+        }
+    }
+
     /// <summary>
-    /// 무기 콜라이더의 상태를 변경하는 함수
+    /// 무기 콜라이더의 상태를 변경하는 함수 ( 이벤트 애니메이션 )
     /// </summary>
     public void changeWeaponCollider()
     {

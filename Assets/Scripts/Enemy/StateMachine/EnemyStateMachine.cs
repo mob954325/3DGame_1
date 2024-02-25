@@ -10,6 +10,11 @@ public class EnemyStateMachine : MonoBehaviour
     bool isEnter = false;
 
     /// <summary>
+    /// 상태머신에서 죽었는지 확인하는 변수
+    /// </summary>
+    bool isDead = false; 
+
+    /// <summary>
     /// 현재 상태 스크립트 ( Null이면 행동을 안함 )
     /// </summary>
     public EnemyStateBase currentState;
@@ -27,6 +32,7 @@ public class EnemyStateMachine : MonoBehaviour
     void FixedUpdate()
     {
         RunStateMachine();
+        OnDieState(); // 죽으면 사망 상태로 이동
     }
 
 
@@ -63,5 +69,18 @@ public class EnemyStateMachine : MonoBehaviour
 
         currentState = nextState; // 다음 state로 변경
         currentState.enemy = GetComponent<EnemyBase>(); // state의 enemy 컴포넌트 받기
+    }
+
+    private void OnDieState()
+    {
+        if(currentState.enemy.IsDie && !isDead)
+        {
+            isEnter = true; // 진입여부 활성화
+            isDead = true;
+
+            // 상태 변경
+            currentState = currentState.enemy.SetEnemyState(EnemyBase.State.Death);
+            currentState.enemy = GetComponent<EnemyBase>(); // state의 enemy 컴포넌트 받기
+        }
     }
 }

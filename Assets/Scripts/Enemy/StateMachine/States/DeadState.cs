@@ -6,12 +6,13 @@ public class DeadState : EnemyStateBase
 {
     public override EnemyStateBase EnterCurrentState()
     {
-        throw new System.NotImplementedException();
+        enemy.Anim.SetTrigger(enemy.DieToHash);
+        return this;
     }
 
     public override EnemyStateBase ExitCurrentState()
     {
-        throw new System.NotImplementedException();
+        return this;
     }
 
     public override EnemyStateBase RunCurrentState()

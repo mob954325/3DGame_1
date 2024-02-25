@@ -7,14 +7,12 @@ using UnityEngine;
 /// </summary>
 public class FaintState : EnemyStateBase
 {
-    public bool isFaint = true;
-
     float timer = 0;
+    float faintTime = 2f; // 24.02.25 - 애니메이션 시간에 따른 
 
     public override EnemyStateBase EnterCurrentState()
     {
         timer = 0f;
-        isFaint = true;
 
         enemy.Anim.SetTrigger(enemy.faintToHash); // 기절 애니메이션
         enemy.Anim.SetBool(enemy.isFaintToHash, true); // 기절 bool 애니메이션
@@ -24,19 +22,14 @@ public class FaintState : EnemyStateBase
 
     public override EnemyStateBase ExitCurrentState()
     {
-        throw new System.NotImplementedException();
+        return this;
     }
 
     public override EnemyStateBase RunCurrentState()
     {
-        timer = Time.deltaTime;
+        timer += Time.deltaTime;
 
-        if(timer > 2f)
-        {
-            isFaint = false;
-        }
-
-        if(!isFaint)
+        if(timer > faintTime)
         {
             enemy.Anim.SetBool(enemy.isFaintToHash, false); // 기절 bool 애니메이션
             return enemy.SetEnemyState(EnemyBase.State.Chasing);

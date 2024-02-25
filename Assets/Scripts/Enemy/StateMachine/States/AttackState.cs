@@ -16,6 +16,7 @@ public class AttackState : EnemyStateBase
         isAttack = true;
         enemy.speed = 0f;
 
+        StopCoroutine(AttackCombo());
         StartCoroutine(AttackCombo()); // 공격 실행
 
         return this;
@@ -23,11 +24,13 @@ public class AttackState : EnemyStateBase
 
     public override EnemyStateBase ExitCurrentState()
     {
+
         return this;
     }
 
     public override EnemyStateBase RunCurrentState()
     {
+        // 플레이어가 패링을 했으면 피격 애니메이션 실행
         if (enemy.isAttackBlocked && !isBlock)
         {
             isBlock = true;
@@ -37,6 +40,7 @@ public class AttackState : EnemyStateBase
                 return enemy.SetEnemyState(EnemyBase.State.Faint);
         }
 
+        // 공격이 끝나면 chasing으로 돌아가기
         if (!isAttack)
             return enemy.SetEnemyState(EnemyBase.State.Chasing);
 
@@ -46,7 +50,7 @@ public class AttackState : EnemyStateBase
     IEnumerator AttackCombo()
     {
         enemy.Anim.SetTrigger(enemy.AttackToHash);
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(8f); // 2f / 24.02.25 - 애니메이션 재생시간에 따른 코루틴 대기시간 정하기
         isAttack = false;
     }
 
@@ -54,5 +58,6 @@ public class AttackState : EnemyStateBase
     {
         enemy.Toughness -= 20;
         enemy.Anim.SetTrigger(enemy.DamagedToHash);
+        enemy.changeWeaponCollider();
     }
 }
