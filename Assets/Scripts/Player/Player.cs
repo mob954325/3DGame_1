@@ -141,9 +141,6 @@ public class Player : MonoBehaviour
     public bool isDefenceAttack = false; // 플레이어가 방패밀치기를 했는지 확인하는 bool
     //float checkEnemyAngle = 0f;
 
-    //[SerializeField] bool canInteraction = false; // 플레이어가 상호작용이 가능한지 확인하는 bool
-
-
     void Awake()
     {
         // 컴포넌트
@@ -163,7 +160,6 @@ public class Player : MonoBehaviour
         // 델리게이트
         OnAttack += weapon.ChangeColliderEnableState; 
         OnDefence += shield.ChangeColliderEnableState;
-        //if(enemy != null) OnParrying += enemy.CheckDefenced;
     }
 
     void Start()
@@ -197,7 +193,6 @@ public class Player : MonoBehaviour
     {
         if(context.performed)
         {
-            //GameUIManager.Instance.infoPanel.GetComponent<UI_Info>().ActiveUI();
             OnInteractionAction?.Invoke();
         }
     }
@@ -271,7 +266,7 @@ public class Player : MonoBehaviour
 
                 rigid.AddForce(enemy.transform.forward * 70f, ForceMode.Impulse); // 24.02.25 , 적 방향으로 넉백
             }
-            else if (isDefence)
+            else if (other.CompareTag("EnemyAttack") && isDefence)
             {
                 isDamaged = true;
                 rigid.AddForce(enemy.transform.forward * 45f, ForceMode.Impulse); // 적 방향으로 넉백
@@ -279,23 +274,10 @@ public class Player : MonoBehaviour
 
             //StartCoroutine(HitDelay());
         }
-
-        // check interaction Object
-        if (other.CompareTag("Interaction"))
-        {
-            //GameUIManager.Instance.info.targetObj = other.gameObject; // 타겟 오브젝트 지정
-            //canInteraction = true;
-        }
     }
 
     void OnTriggerExit(Collider other)
     {
-        // check interaction Object
-        if (other.CompareTag("Interaction"))
-        {
-            //canInteraction = false;
-            //GameUIManager.Instance.infoPanel.GetComponent<UI_Info>().gameObject.SetActive(false);
-        }
     }
 
     private void OnLookInput(InputAction.CallbackContext context)

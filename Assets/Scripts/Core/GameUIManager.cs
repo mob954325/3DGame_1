@@ -14,7 +14,6 @@ public class GameUIManager : Singleton<GameUIManager>
 
     [Header("Panels")]
     ResultPanel resultPanel;
-    [HideInInspector]public UI_Info info;
     [HideInInspector]public bool isPlayerInteraction = false;
 
 
@@ -23,7 +22,6 @@ public class GameUIManager : Singleton<GameUIManager>
         playerBar = FindAnyObjectByType<PlayerBar>();
         enemyBar = FindAnyObjectByType<EnemyBar>();
 
-        info = FindAnyObjectByType<UI_Info>();
         resultPanel = FindAnyObjectByType<ResultPanel>();
     }
 
