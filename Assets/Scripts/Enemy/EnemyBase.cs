@@ -16,7 +16,8 @@ public class EnemyBase : MonoBehaviour
     WeaponControl weapon;
     Rigidbody rigid;
     Animator animator;
-    public  EnemyStateBase[] enemyStates;
+    SoundControl soundControl;
+    public EnemyStateBase[] enemyStates;
 
     // 프로퍼티
     public Player Player => player;
@@ -120,6 +121,7 @@ public class EnemyBase : MonoBehaviour
         player = FindAnyObjectByType<Player>();
         animator = GetComponent<Animator>();
         weapon = GetComponentInChildren<WeaponControl>();
+        soundControl = GetComponentInChildren<SoundControl>();
 
         // delegate
         onAttack += weapon.ChangeColliderEnableState;
@@ -134,7 +136,7 @@ public class EnemyBase : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if(other.CompareTag("PlayerAttack") && !IsDamaged) // 플레이어의 공격을 받았으면 데미지 받기
+        if(other.CompareTag("PlayerAttack") && !IsDamaged && !isDie) // 플레이어의 공격을 받았으면 데미지 받기
         {
             isDamaged = true;
             Anim.SetTrigger(DamagedToHash);
@@ -144,7 +146,7 @@ public class EnemyBase : MonoBehaviour
 
     void OnTriggerExit(Collider other)
     {
-        if(other.CompareTag("PlayerAttack") && IsDamaged) // 공격에 벗어나면 피격 비활성화
+        if(other.CompareTag("PlayerAttack") && IsDamaged && !isDie) // 공격에 벗어나면 피격 비활성화
         {
             isDamaged = false;  
         }
@@ -204,5 +206,14 @@ public class EnemyBase : MonoBehaviour
             }
         }
         return time;
+    }
+
+    /// <summary>
+    /// 소리를 실행하는 함수
+    /// </summary>
+    public void PlayAttackSound()
+    {
+        int rand = UnityEngine.Random.Range(0, soundControl.audioSources.Length);
+        soundControl.audioSources[rand].Play();
     }
 }

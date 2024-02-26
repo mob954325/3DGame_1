@@ -15,6 +15,7 @@ public class AttackState : EnemyStateBase
         isBlock = false;
         isAttack = true;
         enemy.speed = 0f;
+        enemy.Anim.SetFloat(enemy.SpeedToHash, enemy.speed);// 애니메이션 파라미터 적용
 
         StopCoroutine(AttackCombo());
         StartCoroutine(AttackCombo()); // 공격 실행
@@ -52,7 +53,6 @@ public class AttackState : EnemyStateBase
         enemy.Anim.SetTrigger(enemy.AttackToHash);
 
         float animTime = enemy.GetAnimClipLength("Attack");
-        Debug.Log(animTime);
 
         yield return new WaitForSeconds(animTime); // 2f / 24.02.25 - 애니메이션 재생시간에 따른 코루틴 대기시간 정하기
         isAttack = false;
