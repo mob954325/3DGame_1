@@ -1457,7 +1457,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 2
   rotateSpeed: 5
-  attackRange: 2.1
+  attackRange: 1.9
   attackDelay: 2.5
   ToughnessDelay: 2
   StepBackTime: 0
@@ -1647,7 +1647,7 @@ GameObject:
   m_Layer: 0
   m_Name: MeleeWarriorSword
   m_TagString: EnemyAttack
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 7866945982896999795, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1

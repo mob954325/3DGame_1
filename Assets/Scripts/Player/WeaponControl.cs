@@ -33,6 +33,14 @@ public class WeaponControl : MonoBehaviour
         }
     }
 
+    void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Shield"))
+        {
+            isDefenced = false;
+        }
+    }
+
     /// <summary>
     /// 무기 콜라이더를 활성화, 비활성화 하는 함수 (실행하면 bool값이 전환됨, 초기값: false)
     /// </summary>
@@ -42,10 +50,10 @@ public class WeaponControl : MonoBehaviour
         coll.enabled = isEnable;
     }
 
-    public void ChangeIsDefencedState()
-    {
-        isDefenced = !isDefenced;
-    }
+    //public void ChangeIsDefencedState()
+    //{
+    //    isDefenced = !isDefenced;
+    //}
 
     /// <summary>
     /// 공격이 방패에 막혔는지 여부를 반환하는 함수 (true : 막힘, false : 안막힘)

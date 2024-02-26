@@ -18,9 +18,7 @@ public class Player : MonoBehaviour
     /// 플레이어가 방어할 때 실행하는 델리게이트
     /// </summary>
     Action OnDefence;
-    Action OnParrying;
 
-    
     /// <summary>
     /// 플레이어 인터렉션 델리게이트
     /// </summary>
@@ -30,7 +28,8 @@ public class Player : MonoBehaviour
     PlayerInputActions actions;
     Animator animator;
     Rigidbody rigid;
-    HSEnemy enemy;
+    EnemyBase enemy;
+    SoundControl soundControl;
     
     WeaponControl weapon;
     ShieldControl shield;
@@ -103,9 +102,10 @@ public class Player : MonoBehaviour
             hp = value;
             //Debug.Log($"플레이어의 체력이 [{hp}]만큼 남았습니다");
 
-            if (hp < 0)
+            if (hp <= 0)
             {
                 hp = 0;
+                isDie = true;
                 Die();
             }
         }
@@ -139,10 +139,8 @@ public class Player : MonoBehaviour
     public bool isDefence = false; // 플레이어가 방어를 하는지 확인하는 bool
     bool isLockOn = false; // 플레이어가 락온을 활성화 했는지 확인하는 bool
     public bool isDefenceAttack = false; // 플레이어가 방패밀치기를 했는지 확인하는 bool
-    float checkEnemyAngle = 0f;
-
-    //[SerializeField] bool canInteraction = false; // 플레이어가 상호작용이 가능한지 확인하는 bool
-
+    bool isDie = false;
+    //float checkEnemyAngle = 0f;
 
     void Awake()
     {
@@ -150,10 +148,11 @@ public class Player : MonoBehaviour
         actions = new PlayerInputActions();
         rigid = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
-        enemy = FindAnyObjectByType<HSEnemy>();
+        enemy = FindAnyObjectByType<EnemyBase>();
         weapon = GetComponentInChildren<WeaponControl>();
         shield = GetComponentInChildren<ShieldControl>();
         cameraFollowTransform = FindAnyObjectByType<FollowCamera>().transform;
+        soundControl = GetComponentInChildren<SoundControl>();
         playerModel = transform.GetChild(0);
 
         // 변수 초기화
@@ -163,14 +162,12 @@ public class Player : MonoBehaviour
         // 델리게이트
         OnAttack += weapon.ChangeColliderEnableState; 
         OnDefence += shield.ChangeColliderEnableState;
-        if(enemy != null) OnParrying += enemy.CheckDefenced;
     }
 
     void Start()
     {
         //Cursor.lockState = CursorLockMode.Locked; // 커서 고정
         //Cursor.visible = false; // 커서 가리기
-
         rigid.freezeRotation = true;
     }
 
@@ -197,7 +194,6 @@ public class Player : MonoBehaviour
     {
         if(context.performed)
         {
-            //GameUIManager.Instance.infoPanel.GetComponent<UI_Info>().ActiveUI();
             OnInteractionAction?.Invoke();
         }
     }
@@ -227,7 +223,6 @@ public class Player : MonoBehaviour
         DefenceDelayTimer -= Time.deltaTime;
         AttackDelayTimer -= Time.deltaTime;
 
-        RotateCamera();
     }
 
     void FixedUpdate()
@@ -236,6 +231,7 @@ public class Player : MonoBehaviour
         GetPlayerMoveInput();
         PlayerRotate();
         // rotatecamera
+        RotateCamera();
         PlayAnimMove();
 
         // 카메라 락온
@@ -262,42 +258,30 @@ public class Player : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         // 적 공격 감지
-        if (other.CompareTag("EnemyAttack"))
+        if (other.CompareTag("EnemyAttack") && !isDamaged && !isDie)
         {
-            if (isDamaged)
-                return;
-
-            if(isDefenceAttack) // 공격에 닿았을때 방패 밀치기를 수행하면 실행
-            {
-                StartCoroutine(HitDelay()); // 일시적으로 무적 부여 ( 콜라이더가 언제 종료될지 몰라서)
-                OnParrying?.Invoke(); // 패링 델리게이트 실행 ( 적이 공격한 순간인지 체크 )
-            }
-
             if (!isDefence) // 피격당할 시, 방패를 안들었을 때, 방패 밀치기를 실행하지 않았을 때
             {
                 animator.SetTrigger(damagedToHash);
                 HP--;
-                StartCoroutine(HitDelay());
+
+                rigid.AddForce(enemy.transform.forward * 70f, ForceMode.Impulse); // 24.02.25 , 적 방향으로 넉백
             }
-
-
-        }
-
-        // check interaction Object
-        if (other.CompareTag("Interaction"))
-        {
-            //GameUIManager.Instance.info.targetObj = other.gameObject; // 타겟 오브젝트 지정
-            //canInteraction = true;
+            else if (other.CompareTag("EnemyAttack") && isDefence && !isDie)
+            {
+                Debug.Log("asdf");
+                isDamaged = true;
+                rigid.AddForce(enemy.transform.forward * 45f, ForceMode.Impulse); // 적 방향으로 넉백
+            }
+            //StartCoroutine(HitDelay());
         }
     }
 
     void OnTriggerExit(Collider other)
     {
-        // check interaction Object
-        if (other.CompareTag("Interaction"))
+        if (other.CompareTag("EnemyAttack") && isDefence && !isDie)
         {
-            //canInteraction = false;
-            //GameUIManager.Instance.infoPanel.GetComponent<UI_Info>().gameObject.SetActive(false);
+            rigid.AddForce(enemy.transform.forward * 45f, ForceMode.Impulse); // 적 방향으로 넉백
         }
     }
 
@@ -473,12 +457,13 @@ public class Player : MonoBehaviour
 
             OnDefence?.Invoke(); // 방패 콜라이더 활성화
 
-            isDefence = true; // 방어를 할 수 있다
+            isDefence = true; // 방어활성화
 
         }
         if (context.canceled && isDefence)
         {
             animator.SetBool(defenceToHash, false); // 방패 밀치기 준비
+            isDamaged = true; // 무적 활성화 
             StartCoroutine(AfterDefence());
         }
     }
@@ -499,6 +484,7 @@ public class Player : MonoBehaviour
 
         OnDefence?.Invoke(); // 방패 콜라이더 비활성화
         isDefenceAttack = false;
+        isDamaged = false; // 무적 판정 비활성화
     }
 
     private void OnLockCameraInput(InputAction.CallbackContext context)
@@ -521,9 +507,15 @@ public class Player : MonoBehaviour
     /// </summary>
     void Die()
     {
+        DisablePlayerAction();
         animator.SetTrigger(DieToHash);
+        GameUIManager.Instance.ShowResult(true);
+        GameManager.Instance.BattleEnd();
+    }
 
-        // 점수판 보여주는 델리게이트 실행
+    public void DisablePlayerAction()
+    {
+        actions.Player.Disable();
     }
 
     /// <summary>
@@ -536,13 +528,22 @@ public class Player : MonoBehaviour
         float time = 0;
         RuntimeAnimatorController ac = animator.runtimeAnimatorController;
 
-        for(int i = 0; i < ac.animationClips.Length; i++)
+        for (int i = 0; i < ac.animationClips.Length; i++)
         {
-            if(ac.animationClips[i].name == clipName)
+            if (ac.animationClips[i].name == clipName)
             {
                 time = ac.animationClips[i].length;
             }
         }
         return time;
+    }
+
+    /// <summary>
+    /// 소리를 실행하는 함수
+    /// </summary>
+    public void PlayAttackSound()
+    {
+        int rand = UnityEngine.Random.Range(0, soundControl.audioSources.Length);
+        soundControl.audioSources[rand].Play();
     }
 }
