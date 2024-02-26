@@ -139,7 +139,7 @@ public class Player : MonoBehaviour
     public bool isDefence = false; // 플레이어가 방어를 하는지 확인하는 bool
     bool isLockOn = false; // 플레이어가 락온을 활성화 했는지 확인하는 bool
     public bool isDefenceAttack = false; // 플레이어가 방패밀치기를 했는지 확인하는 bool
-    float checkEnemyAngle = 0f;
+    //float checkEnemyAngle = 0f;
 
     //[SerializeField] bool canInteraction = false; // 플레이어가 상호작용이 가능한지 확인하는 bool
 
@@ -264,18 +264,17 @@ public class Player : MonoBehaviour
         // 적 공격 감지
         if (other.CompareTag("EnemyAttack") && !isDamaged)
         {
-            if(isDefenceAttack) // 공격에 닿았을때 방패 밀치기를 수행하면 실행
-            {
-                //StartCoroutine(HitDelay()); // 일시적으로 무적 부여 ( 콜라이더가 언제 종료될지 몰라서)
-                OnParrying?.Invoke(); // 패링 델리게이트 실행 ( 적이 공격한 순간인지 체크 )
-            }
-
             if (!isDefence) // 피격당할 시, 방패를 안들었을 때, 방패 밀치기를 실행하지 않았을 때
             {
                 animator.SetTrigger(damagedToHash);
                 HP--;
-                
-                rigid.AddForce(transform.position - enemy.transform.position * 10f, ForceMode.Impulse); // 24.02.25
+
+                rigid.AddForce(enemy.transform.forward * 70f, ForceMode.Impulse); // 24.02.25 , 적 방향으로 넉백
+            }
+            else if (isDefence)
+            {
+                isDamaged = true;
+                rigid.AddForce(enemy.transform.forward * 45f, ForceMode.Impulse); // 적 방향으로 넉백
             }
 
             //StartCoroutine(HitDelay());
@@ -497,6 +496,7 @@ public class Player : MonoBehaviour
 
         OnDefence?.Invoke(); // 방패 콜라이더 비활성화
         isDefenceAttack = false;
+        isDamaged = false; // 무적 판정 비활성화
     }
 
     private void OnLockCameraInput(InputAction.CallbackContext context)

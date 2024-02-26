@@ -50,7 +50,11 @@ public class AttackState : EnemyStateBase
     IEnumerator AttackCombo()
     {
         enemy.Anim.SetTrigger(enemy.AttackToHash);
-        yield return new WaitForSeconds(8f); // 2f / 24.02.25 - 애니메이션 재생시간에 따른 코루틴 대기시간 정하기
+
+        float animTime = enemy.GetAnimClipLength("Attack");
+        Debug.Log(animTime);
+
+        yield return new WaitForSeconds(animTime); // 2f / 24.02.25 - 애니메이션 재생시간에 따른 코루틴 대기시간 정하기
         isAttack = false;
     }
 

@@ -7,16 +7,23 @@ using UnityEngine;
 /// </summary>
 public class FaintState : EnemyStateBase
 {
-    float timer = 0;
-    float faintTime = 2f; // 24.02.25 - 애니메이션 시간에 따른 
+    float timer = 0f;
+    float faintTime; // 기절 시간
+
+    bool isFaintEnd = true;
 
     public override EnemyStateBase EnterCurrentState()
     {
-        timer = 0f;
+        // 초기화
+        float animTime = enemy.GetAnimClipLength("Faint"); // 애니메이션 재생시간
+        faintTime = animTime + 0.5f; // 일어나는 시간
+        timer = 0f; // 타이머 초기화
+        isFaintEnd = true; // 조건 초기화
 
         enemy.Anim.SetTrigger(enemy.faintToHash); // 기절 애니메이션
-        enemy.Anim.SetBool(enemy.isFaintToHash, true); // 기절 bool 애니메이션
 
+        StopCoroutine(FaintAnimCoroutine());
+        StartCoroutine(FaintAnimCoroutine());
         return this;
     }
 
@@ -27,14 +34,23 @@ public class FaintState : EnemyStateBase
 
     public override EnemyStateBase RunCurrentState()
     {
-        timer += Time.deltaTime;
+        if(!isFaintEnd) timer += Time.deltaTime;
 
         if(timer > faintTime)
         {
-            enemy.Anim.SetBool(enemy.isFaintToHash, false); // 기절 bool 애니메이션
-            return enemy.SetEnemyState(EnemyBase.State.Chasing);
+            enemy.Toughness = enemy.maxToughness; // 강인성 초기화 후 
+            return enemy.SetEnemyState(EnemyBase.State.Chasing); // 상태 변경
         }
 
         return this;
+    }
+
+    IEnumerator FaintAnimCoroutine()
+    {
+        enemy.Anim.SetBool(enemy.isFaintToHash, isFaintEnd); // 기절 bool 애니메이션
+        yield return new WaitForSeconds(1.2f);
+
+        isFaintEnd = false;
+        enemy.Anim.SetBool(enemy.isFaintToHash, isFaintEnd); // 기절 bool 애니메이션
     }
 }

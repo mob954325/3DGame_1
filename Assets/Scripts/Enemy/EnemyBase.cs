@@ -185,4 +185,24 @@ public class EnemyBase : MonoBehaviour
         }
         return selectState;
     }
+
+    /// <summary>
+    /// 특정 애니메이션 시간을 찾는 함수
+    /// </summary>
+    /// <param name="clipName">찾는 애니메이션 이름</param>
+    /// <returns>clipName 애니메이션 시간</returns>
+    public float GetAnimClipLength(string clipName)
+    {
+        float time = 0;
+        RuntimeAnimatorController ac = animator.runtimeAnimatorController;
+
+        for (int i = 0; i < ac.animationClips.Length; i++)
+        {
+            if (ac.animationClips[i].name == clipName)
+            {
+                time = ac.animationClips[i].length;
+            }
+        }
+        return time;
+    }
 }
