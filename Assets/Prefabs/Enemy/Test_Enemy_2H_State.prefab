@@ -3180,6 +3180,7 @@ MonoBehaviour:
   StepBackTime: 0
   maxHp: 10
   maxToughness: 100
+  attackAnimNum: 3
 --- !u!114 &5924835464623710956
 MonoBehaviour:
   m_ObjectHideFlags: 0

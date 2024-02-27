@@ -51,8 +51,11 @@ public class AttackState : EnemyStateBase
     IEnumerator AttackCombo()
     {
         enemy.Anim.SetTrigger(enemy.AttackToHash);
+        int randAnimNum = UnityEngine.Random.Range(0, enemy.attackAnimNum); // 랜덤 공격  애니메이션 가져오기 (0 - attackAnimNum 미만 수)
 
-        float animTime = enemy.GetAnimClipLength("Attack");
+        enemy.Anim.SetInteger(enemy.randomAttackToHash, randAnimNum);
+
+        float animTime = enemy.GetAnimClipLength($"Attack{randAnimNum}");
 
         yield return new WaitForSeconds(animTime); // 2f / 24.02.25 - 애니메이션 재생시간에 따른 코루틴 대기시간 정하기
         isAttack = false;

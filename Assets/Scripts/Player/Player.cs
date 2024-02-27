@@ -396,8 +396,6 @@ public class Player : MonoBehaviour
         moveDirection.y = 0f;
 
         rigid.MovePosition(rigid.position + Time.fixedDeltaTime * moveDirection.normalized * moveSpeed); // player Move position
-
-        playerModel.position = transform.position + moveDirection.normalized * Time.fixedDeltaTime;
     }
 
     void PlayAnimMove()

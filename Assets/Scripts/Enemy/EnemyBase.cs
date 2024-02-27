@@ -38,19 +38,19 @@ public class EnemyBase : MonoBehaviour
     public State states;
 
     // Values
-    public Vector3 direction = Vector3.zero;
-    public float lookAngle;
+    public Vector3 direction = Vector3.zero;                // 바라보는 방향 (vector3)
+    public float lookAngle;                                 // 바라보는 방향 (float)
 
     // Enemy stats
     [Header("Enemy Stats")]
-    public float baseSpeed = 3.0f;
-    public float speed = 3.0f;
-    public float rotateSpeed = 5.0f;
+    public float baseSpeed = 3.0f;                          // 적 이동 속도를 저장하는 변수
+    public float speed = 3.0f;                              // 적 이동 속도
+    public float rotateSpeed = 5.0f;                        // 적 회전 속도
     [Space(10f)]
-    public float attackRange = 2.0f;
-    public float attackDelay = 2.5f;
-    public float ToughnessDelay = 2f;  // 강인성 감소 딜레이 시간
-    public float StepBackTime = 0f;
+    public float attackRange = 2.0f;                        // 공격 범위
+    public float attackDelay = 2.5f;                        // 공격 딜레이
+    public float ToughnessDelay = 2f;                       // 강인성 감소 딜레이 시간
+    [HideInInspector]public float StepBackTime = 0f;        // 물러나는 시간 (공격 후)
 
     int hp;
     public int maxHp = 10;
@@ -93,13 +93,20 @@ public class EnemyBase : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 공격 애니메이션 개수
+    /// </summary>
+    [Tooltip("Set Attack Animation Num")]
+    public int attackAnimNum;
+
     // bool
     public bool isAttackBlocked => weapon.CheckIsDefenced(); // 공격이 막혔는지 확인하는 변수
 
     private bool isDamaged = false;
-    public bool IsDamaged => isDamaged;
-    bool isDie = false;
-    public bool IsDie => isDie;
+    public bool IsDamaged => isDamaged; // 데미지 입었는지 확인하는 프로퍼티
+
+    private bool isDie = false;                 
+    public bool IsDie => isDie;         // 죽었는지 확인하는 프로퍼티
 
     // 적이 공동으로 가져야할 애니메이션 파라미터
     // Hashes
@@ -109,7 +116,7 @@ public class EnemyBase : MonoBehaviour
     public readonly int DieToHash = Animator.StringToHash("Die");
     public readonly int faintToHash = Animator.StringToHash("Faint"); // 기절 trigger 
     public readonly int isFaintToHash = Animator.StringToHash("isFaint"); // 기절이 끝나기 전까지 대기하게 하는 animator bool값
-
+    public readonly int randomAttackToHash = Animator.StringToHash("RandomAttack"); // 공격 애니메이션 중 몇번 애니메이션인지 선택하는 int 값
     void Awake()
     {
         // 초기화
