@@ -12,12 +12,12 @@ public class EnemyBase : MonoBehaviour
     Action onAttack;
 
     // Components
-    public Player player;
+    Player player;
     WeaponControl weapon;
     Rigidbody rigid;
     Animator animator;
     SoundControl soundControl;
-    public EnemyStateBase[] enemyStates;
+    EnemyStateBase[] enemyStates;
 
     // 프로퍼티
     public Player Player => player;
