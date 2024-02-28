@@ -57,7 +57,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Player_WalkBackward
+  m_Name: Player_Backward
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -73,7 +73,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: ecaf1720136357440b853ba6840d92d8, type: 2}
+  m_Motion: {fileID: 7400000, guid: d32178617377f534683519798917b7b1, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -348,7 +348,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: d61a7008a50b73e4f897b7ebf91103cc, type: 2}
+  m_Motion: {fileID: 7400000, guid: 2d185315a78fefc40983273290c4f6bc, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -446,7 +446,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Player_Walk_RightSide
+  m_Name: Player_RightSide
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -462,7 +462,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 98cc202387dd2e84c9479ae9f1b74643, type: 2}
+  m_Motion: {fileID: 7400000, guid: b06a63a46562e3742ab3de88ad2b6560, type: 2}
   m_Tag: 
   m_SpeedParameter: Vertical
   m_MirrorParameter: 
@@ -475,7 +475,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Player_Walk_LeftSide
+  m_Name: Player_LeftSide
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -491,7 +491,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 6c67ca66621e9f240b392225a3b39de1, type: 2}
+  m_Motion: {fileID: 7400000, guid: afe9bec726183614b92544739a21552c, type: 2}
   m_Tag: 
   m_SpeedParameter: Vertical
   m_MirrorParameter: 
@@ -1052,7 +1052,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: c49b7faf71cf048418fe526d8e233c8e, type: 3}
+  m_Motion: {fileID: 7400000, guid: e160a2f28ad5eed419caac459036fdaa, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -1092,7 +1092,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Player_WalkForward
+  m_Name: Player_Forward
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -1108,7 +1108,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 3344ca99a40d6a64eb99371f4b1ab0ae, type: 2}
+  m_Motion: {fileID: 7400000, guid: 70a234f8f71e11a41a6aeeced90c0460, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 

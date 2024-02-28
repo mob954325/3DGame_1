@@ -223,15 +223,14 @@ public class Player : MonoBehaviour
         DefenceDelayTimer -= Time.deltaTime;
         AttackDelayTimer -= Time.deltaTime;
 
+        GetPlayerMoveInput();
+        RotateCamera();
     }
 
     void FixedUpdate()
     {
         playerMove();
-        GetPlayerMoveInput();
         PlayerRotate();
-        // rotatecamera
-        RotateCamera();
         PlayAnimMove();
 
         // 카메라 락온
