@@ -10,8 +10,9 @@ using UnityEngine.SceneManagement;
 public class GameUIManager : Singleton<GameUIManager>
 {
     [Header("Gauge UI")]
-    PlayerBar playerBar;
-    EnemyBar enemyBar;
+    public PlayerBar playerBar;
+    public EnemyBar enemyBar;
+    public EnemyBar EnemyBar => enemyBar;
 
     [Header("Panels")]
     ResultPanel resultPanel;

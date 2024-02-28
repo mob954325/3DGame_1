@@ -18,7 +18,8 @@ public class ChasingState : EnemyStateBase
         isStepBack = true;
 
         stepBackTimer = 0f;
-        enemy.speed = enemy.baseSpeed;
+        float randSpeed = UnityEngine.Random.Range(1.5f, enemy.baseSpeed);
+        enemy.speed = randSpeed;
         return this;
     }
 

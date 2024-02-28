@@ -9,6 +9,6 @@ EditorBuildSettings:
     path: Assets/Scenes/Main/TitleScene.unity
     guid: f7cc1a8492c70e14db16068124f7a93d
   - enabled: 1
-    path: Assets/Scenes/Main/InGame.unity
-    guid: 9e8ddc4e4b4ab054cb6c93e90c32d6d8
+    path: Assets/Scenes/Main/InGame_EntracePlus.unity
+    guid: 1f79c074ebec4d44f83cffd9e7c3c84e
   m_configObjects: {}

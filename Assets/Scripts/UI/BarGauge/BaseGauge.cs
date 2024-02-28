@@ -8,7 +8,7 @@ using UnityEngine.UI;
 /// </summary>
 public class BaseGauge : MonoBehaviour
 {
-    void Awake()
+    void Start()
     {
         Init();
     }

@@ -35,7 +35,14 @@ public class EnemyBase : MonoBehaviour
         Death
     }
 
+    public enum Type
+    {
+        Nomal,
+        Boss
+    }
+
     public State states;
+    public Type type;
 
     // Values
     public Vector3 direction = Vector3.zero;                // 바라보는 방향 (vector3)

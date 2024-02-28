@@ -5,11 +5,12 @@ using UnityEngine;
 public class GameManager : Singleton<GameManager>
 {
     public Player player;
+    //isBattle = true;
 
     /// <summary>
     /// 전투가 시작했는지 확인하는 변수 (true : 진행중, false : 끝남)
     /// </summary>
-    public bool isBattle = false;
+    bool isBattle = false;
 
     /// <summary>
     /// 게임시간
@@ -20,11 +21,6 @@ public class GameManager : Singleton<GameManager>
     {
         player = FindAnyObjectByType<Player>();
         timer = 0.0f;
-    }
-
-    void Start()
-    {
-        isBattle = true;
     }
 
     void Update()
@@ -41,5 +37,10 @@ public class GameManager : Singleton<GameManager>
     public void BattleEnd()
     {
         isBattle = false;
+    }
+
+    public bool GetIsBattle()
+    {
+        return isBattle;
     }
 }

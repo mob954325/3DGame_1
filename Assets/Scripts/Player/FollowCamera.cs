@@ -39,6 +39,10 @@ public class FollowCamera : MonoBehaviour
                 //Debug.Log(vCamera.CameraDistance);
                 vCamera.CameraDistance = vCamera.CameraDistance - (Camera.main.transform.position - hitInfo.point).magnitude; // 보정될 카메라 위치
             }
+            else
+            {
+                vCamera.CameraDistance = vCameraDistance;
+            }
         }
     }
 }

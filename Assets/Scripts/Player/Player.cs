@@ -148,7 +148,7 @@ public class Player : MonoBehaviour
         actions = new PlayerInputActions();
         rigid = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
-        enemy = FindAnyObjectByType<EnemyBase>();
+        //enemy = FindAnyObjectByType<EnemyBase>();
         weapon = GetComponentInChildren<WeaponControl>();
         shield = GetComponentInChildren<ShieldControl>();
         cameraFollowTransform = FindAnyObjectByType<FollowCamera>().transform;
@@ -233,8 +233,10 @@ public class Player : MonoBehaviour
         PlayerRotate();
         PlayAnimMove();
 
+        GetEnemyPosition();
+
         // 카메라 락온
-        if(isLockOn)
+        if (isLockOn && enemy != null)
             cameraFollowTransform.LookAt(enemy.transform);
     }
 
@@ -263,15 +265,13 @@ public class Player : MonoBehaviour
             {
                 animator.SetTrigger(damagedToHash);
                 HP--;
-
-                rigid.AddForce(enemy.transform.forward * 70f, ForceMode.Impulse); // 24.02.25 , 적 방향으로 넉백
             }
             else if (other.CompareTag("EnemyAttack") && isDefence && !isDie)
             {
                 Debug.Log("asdf");
                 isDamaged = true;
-                rigid.AddForce(enemy.transform.forward * 45f, ForceMode.Impulse); // 적 방향으로 넉백
             }
+            rigid.AddForce(other.gameObject.transform.forward * 45f, ForceMode.Impulse); // 적 방향으로 넉백
             //StartCoroutine(HitDelay());
         }
     }
@@ -280,7 +280,7 @@ public class Player : MonoBehaviour
     {
         if (other.CompareTag("EnemyAttack") && isDefence && !isDie)
         {
-            rigid.AddForce(enemy.transform.forward * 45f, ForceMode.Impulse); // 적 방향으로 넉백
+            rigid.AddForce(other.gameObject.transform.forward * 45f, ForceMode.Impulse); // 적 방향으로 넉백
         }
     }
 
@@ -490,6 +490,29 @@ public class Player : MonoBehaviour
         {
             isLockOn = !isLockOn;
         }
+    }
+
+    void GetEnemyPosition()
+    {
+        float checkEnemyRange = 15f;
+        Ray ray = new Ray(transform.position, transform.forward);
+        RaycastHit[] rayHits =
+            Physics.SphereCastAll(transform.position, checkEnemyRange, Vector3.up, 0f, LayerMask.GetMask("Enemy"));
+
+        // 가장 가까운 거리에 있는 적 가져오기
+        float distance = checkEnemyRange;
+        float minDistance;
+        for(int i = 0; i < rayHits.Length; i++)
+        {
+            minDistance = distance;
+            distance = MathF.Min(distance, (rayHits[i].transform.position - transform.position).magnitude);
+            if(minDistance != distance) // 길이 갱신 (더 가까운 적이 있음)
+            {
+                enemy = rayHits[i].collider.GetComponent<EnemyBase>();
+            }
+        }
+
+        //distance = checkEnemyRange;
     }
 
     IEnumerator HitDelay()

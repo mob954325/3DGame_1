@@ -8,38 +8,52 @@ using UnityEngine.UI;
 /// </summary>
 public class EnemyBar : BaseGauge
 {
-    // HSEnemy
+    // Enemy
     EnemyBase enemy;
 
-    Image currentEnemyHP;
-    Image currentEnemyToughness;
+    public GameObject currentEnemyHPObj;
+    public GameObject currentEnemyToughnessObj;
+
+    public Image currentEnemyHP;
+    public Image currentEnemyToughness;
+
+    public Transform hpChild;
+    public Transform toughChild;
+
 
     protected override void Init()
     {
-        enemy = FindAnyObjectByType<EnemyBase>(); // enemy 스크립트가 있는 오브젝트 찾기
-        if(enemy == null)
-        {
-            // 임시
-            enemy = FindAnyObjectByType<EnemyBase>(); // enemy 스크립트가 있는 오브젝트 찾기
-            gameObject.SetActive(false); // 숨기기
-        }
-
-        Transform hpChild = transform.GetChild(0).GetChild(1);
-        Transform toughChild = transform.GetChild(1).GetChild(1);
-
-        currentEnemyHP = hpChild.GetComponent<Image>();
-        currentEnemyToughness = toughChild.GetComponent<Image>();
     }
 
     protected override void UpdateUI()
     {
-        if(enemy.HP < 1) // 적이 사망했거나 없으면
+        if (GameManager.Instance.GetIsBattle())
         {
-            gameObject.SetActive(false); // 숨기기
+            enemy = FindAnyObjectByType<EnemyBase>(); // enemy 스크립트가 있는 오브젝트 찾기
+
+            hpChild = transform.GetChild(0);
+            toughChild = transform.GetChild(1);
+
+            currentEnemyHPObj = hpChild.gameObject;
+            currentEnemyToughnessObj = toughChild.gameObject;
+
+            currentEnemyHP = hpChild.GetChild(1).GetComponent<Image>();
+            currentEnemyToughness = toughChild.GetChild(1).GetComponent<Image>();
+
+
+            if (enemy != null)
+            {
+                currentEnemyHPObj.SetActive(true);
+                currentEnemyToughnessObj.SetActive(true);
+
+                if (enemy.HP < 1) // 적이 사망했거나 없으면
+                {
+                    gameObject.SetActive(false); // 숨기기
+                }
+
+            }
+            currentEnemyHP.fillAmount = enemy.HP / (float)enemy.maxHp;
+            currentEnemyToughness.fillAmount = enemy.Toughness / (float)enemy.maxToughness;
         }
-
-        currentEnemyHP.fillAmount = enemy.HP / (float)enemy.maxHp;
-        currentEnemyToughness.fillAmount = enemy.Toughness / (float)enemy.maxToughness;
-
     }
 }
