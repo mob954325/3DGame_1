@@ -5,18 +5,37 @@ using UnityEngine;
 public class CheckEnterBossRoom : MonoBehaviour
 {
     Collider coll;
+
     GameObject childWall;
+    GameObject BlockWall;
+
     public GameObject Boss;
+    public GameObject[] nomals;
+
+    int cnt = 0; // check nomals disable
 
     void Start()
     {
         coll = GetComponent<Collider>();
         childWall = transform.GetChild(0).gameObject;
+        BlockWall = transform.GetChild(1).gameObject;
 
         if(Boss == null)
         {
             Debug.LogError("보스 오브젝트가 존재하지 않습니다");
         }
+    }
+
+    void LateUpdate()
+    {
+        foreach(GameObject obj in nomals)
+        {
+            if (obj.activeSelf == false)
+                cnt++;
+        }
+
+        if (cnt == nomals.Length)
+            BlockWall.SetActive(false);
     }
 
     void OnTriggerEnter(Collider other)
