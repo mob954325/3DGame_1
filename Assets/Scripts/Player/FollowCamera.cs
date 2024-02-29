@@ -33,13 +33,11 @@ public class FollowCamera : MonoBehaviour
 
         if(Physics.Raycast(ray, out RaycastHit hitInfo, length))
         {
-            if(hitInfo.collider.gameObject.layer != 6) // Ray가 플레이어가 아닌 다른 레이어(오브젝트)에 닿았을 때
+            if(hitInfo.collider != null && hitInfo.collider.gameObject.layer != 6)
             {
-                //Debug.DrawRay(Camera.main.transform.position, dir, Color.red);
-                //Debug.Log(vCamera.CameraDistance);
-                vCamera.CameraDistance = vCamera.CameraDistance - (Camera.main.transform.position - hitInfo.point).magnitude; // 보정될 카메라 위치
+                vCamera.CameraDistance = Mathf.Min(vCameraDistance, vCamera.CameraDistance - (Camera.main.transform.position - hitInfo.point).magnitude + 0.1f); // 보정될 카메라 위치
             }
-            else
+            else if(hitInfo.collider.gameObject.layer == 6)
             {
                 vCamera.CameraDistance = vCameraDistance;
             }
