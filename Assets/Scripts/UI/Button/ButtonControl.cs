@@ -19,15 +19,10 @@ public class ButtonControl : MonoBehaviour
 
     void Start()
     {
-        button = gameObject.GetComponent<Button>();
+        button = GetComponent<Button>();
         UImanager = FindAnyObjectByType<GameUIManager>().gameObject;
-        GetClickEvent(buttonEvent);
-    }
 
-    void OnEnable()
-    {
-        if(UImanager != null)
-            GetClickEvent(buttonEvent);
+        GetClickEvent(buttonEvent);
     }
 
     /// <summary>
@@ -38,7 +33,7 @@ public class ButtonControl : MonoBehaviour
         switch (eventName)
         {
             case ButtonEvent.Start:
-                button.onClick.AddListener(UImanager.GetComponent<GameUIManager>().StartGame);
+                button.onClick.AddListener(GameUIManager.Instance.StartGame);
                 break;
             case ButtonEvent.End:
                 button.onClick.AddListener(UImanager.GetComponent<GameUIManager>().EndGame);
