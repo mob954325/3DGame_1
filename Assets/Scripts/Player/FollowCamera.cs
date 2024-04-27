@@ -21,7 +21,7 @@ public class FollowCamera : MonoBehaviour
         vCameraDistance = vCamera.CameraDistance;
     }
 
-    void FixedUpdate()
+    void LateUpdate()
     {
         transform.position = player.gameObject.transform.position + Offset;
 
